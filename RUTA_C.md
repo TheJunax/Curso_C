@@ -605,14 +605,14 @@ Crear tipos de datos propios y estructuras de datos.
 
 ## Módulo 1 — Structs
 
-- [ ] `struct`
-- [ ] Campos
-- [ ] Acceso con `.`
-- [ ] `typedef`
+- [x] `struct`
+- [x] Campos
+- [x] Acceso con `.`
+- [x] `typedef`
 - [ ] Structs anidados
-- [ ] Arrays de structs
-- [ ] Punteros a structs
-- [ ] `->`
+- [x] Arrays de structs
+- [x] Punteros a structs
+- [x] `->`
 
 ## Módulo 2 — Listas enlazadas
 
@@ -1319,6 +1319,21 @@ Estado: ✅ Checkpoint V4 aprobado. Próximo: Checkpoint V5 — Memoria dinámic
 
 Estado: ✅ Checkpoint V5 aprobado. Validación V1–V5 completada. Próximo: Fase 6 — Structs y estructuras de datos.
 
+---
+
+## Sesión 10 — Fase 6 inicio: Structs y typedef
+
+- **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
+- **Archivos creados:** `Pruebas Varias/Practicas OpenCode/Structs.c` (programa de gestión de estudiantes con array de 3 structs, función de mayor promedio).
+- **Bugs corregidos:**
+  - `scanf("%.1f", (e.promedio))` → `scanf("%f", &e.promedio)` (formato de printf en scanf + falta de `&`).
+  - `len = i` dentro del loop → `len` quedaba en 2 en lugar de 3 (off-by-one al contar elementos).
+- **Concepto vendido:** `typedef` para eliminar repetición de `struct`, punteros a structs con `->` para modificar datos reales desde funciones.
+- **Preferencia registrada:** datos de ejemplo por defecto → Juan, Maria, Messi.
+- **Pendiente para próxima sesión:** structs anidados, reto de bonus con punteros a structs, listas enlazadas.
+
+Estado: 🟢 Fase 6 / Módulo 1 en progreso — structs, typedef, arrays, punteros a structs cubiertos. Falta: structs anidados.
+
 ## Checkpoint V4 — Punteros ✅ (Sesión 8)
 
 - **Reto:** función `intercambiarCalificaciones` que intercambie dos notas mediante punteros; recorrido del array con `*(calificaciones+j)` en `mostrarCalificacion`.
@@ -1363,18 +1378,16 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🎓 Validación de conocimientos previos COMPLETADA (V1 ✅, V2 ✅, V3 ✅, V4 ✅, V5 ✅)
+**Etapa:** 🟢 Fase 6 — Structs y estructuras de datos (Módulo 1 en progreso)
 
-**Proyecto activo:** 🧮 Gestor de Calificaciones (`Pruebas Varias/Practicas OpenCode/Validacion V1-V5/`) — vehículo integrador de las validaciones V1–V5.
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c (práctica de structs)
 
-**Próximo:** Fase 6 — Structs y estructuras de datos
+**Próximo:** structs anidados → listas enlazadas → proyecto inventario
 
-**Después de la validación:** Fase 6 — Structs y estructuras de datos
+**Último concepto dominado:** structs (`typedef`, campos, `.`, arrays, punteros a structs, `->`). Antes: memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último concepto dominado:** memoria dinámica (stack vs heap, `malloc`/`calloc`/`realloc`/`free`, memory leaks, dangling pointers, `float **` para actualizar punteros desde funciones, `valgrind`). Antes: punteros, arrays, strings, funciones, fundamentos.
-
-**Último ejercicio:** Gestor de Calificaciones Etapa 5 ✅ — array dinámico con `realloc` creciente, `float **`, valgrind limpio (0 leaks). Antes: Etapa 4 ✅, Etapa 3 ✅, Etapa 2 ✅, Etapa 1 ✅.
+**Último ejercicio:** Structs.c — programa de gestión de 3 estudiantes con typedef, array de structs, función de mayor promedio. Antes: Gestor de Calificaciones Etapa 5 ✅.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
-**Fases completadas:** Fase 1 — Fundamentos de C ✅ (Sesión 5), Fase 2 — Funciones y modularización ✅ (Sesión 7), Fase 3 — Arrays y cadenas ✅ (Sesión 7), Fase 4 — Punteros ✅ (Sesión 8), Fase 5 — Memoria dinámica ✅ (Sesión 9).
+**Fases completadas:** Fase 1 ✅ (Sesión 5), Fase 2 ✅ (Sesión 7), Fase 3 ✅ (Sesión 7), Fase 4 ✅ (Sesión 8), Fase 5 ✅ (Sesión 9).
