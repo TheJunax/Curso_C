@@ -1,0 +1,12 @@
+# Binarios compilados
+**/output/
+*.o
+*.exe
+
+# Archivos temporales
+*.swp
+*.swo
+*~
+
+# Imágenes
+*.png
