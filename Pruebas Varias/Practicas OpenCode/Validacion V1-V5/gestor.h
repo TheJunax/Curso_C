@@ -9,5 +9,6 @@ void pausar(void);
 void buscarCalificacion(float *calificaciones, int *i);
 int ordenarCalificacion(float *calificaciones, int *i);
 int cambiarNombre(char *nombre, int tamaño);
+void intercambiarCalificaciones(float *a, float *b);
 
 #endif

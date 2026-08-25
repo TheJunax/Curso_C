@@ -17,13 +17,13 @@
 | 1 | Fundamentos de C | ✅ Completado |
 | 2 | Funciones y modularización | ✅ Completado |
 | 3 | Arrays y cadenas | ✅ Completado |
-| 4 | Punteros | 🟡 Por validar |
+| 4 | Punteros | ✅ Completado |
 | 5 | Memoria dinámica | 🟡 Por validar |
 | 6 | Structs y estructuras de datos | ⬜ Pendiente |
 | 7 | Archivos | ⬜ Pendiente |
 | 8 | C avanzado y sistemas | ⬜ Pendiente |
 
-**Progreso orientativo:** Validación de conocimientos previos (3 de 5 checkpoints aprobados) — Próximo: Checkpoint V4 (Punteros).
+**Progreso orientativo:** Validación de conocimientos previos (4 de 5 checkpoints aprobados) — Próximo: Checkpoint V5 (Memoria dinámica).
 
 > **Nota:** esta ruta fue adaptada. Las Fases 1–5 corresponden a conocimientos previos ya estudiados; se validan con retos prácticos (sección 🎓) antes de avanzar a la Fase 6.
 
@@ -93,7 +93,7 @@ Las Fases 1–5 corresponden a conocimientos previos ya estudiados. Antes de ava
 
 **Cubre:** direcciones de memoria, `&`, `*`, dereferenciación, paso por referencia, relación array/puntero, `scanf()` explicado con punteros.
 
-**Resultado:** ⬜ Pendiente
+**Resultado:** ✅ Validado (Sesión 8)
 
 ## Checkpoint V5 — Memoria dinámica (Fase 5)
 
@@ -1020,6 +1020,35 @@ if(leidos == EOF){ /* entrada agotada: salir con gracia */ break; }
 if(leidos == 0){ limpiarBuffer(); printf("Entrada invalida\n"); continue; }
 ```
 
+### Truncado silencioso al guardar float en int (intercambio con punteros)
+
+Error:
+
+```c
+void intercambiarCalificaciones(float *a, float *b){
+    int temp = *a;   // *a es float, temp es int → trunca decimales
+    *a = *b;
+    *b = temp;       // pierde la parte decimal
+}
+// Resultado: 4.5 → 4.0 al intercambiar
+```
+
+Aprendizaje:
+
+- Asignar un `float` a un `int` **trunca** silenciosamente la parte decimal — no redondea, no avisa, no produce warning con `-Wall -Wextra`.
+- El tipo del temporal debe coincidir con el tipo de los datos que se manipulan. Regla general: si intercambias `float*`, el temporal es `float`.
+- Este tipo de bug es particularmente peligroso porque el programa **funciona** — solo que produce datos incorrectos. No hay crash, no hay warning.
+
+Solución:
+
+```c
+void intercambiarCalificaciones(float *a, float *b){
+    float temp = *a;
+    *a = *b;
+    *b = temp;
+}
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1182,6 +1211,28 @@ Estado: ✅ Checkpoint V3 aprobado. Próximo: Checkpoint V4 — Punteros (Fase 4
 
 ---
 
+## Sesión 8 — Checkpoint V4 completado ✅: Punteros
+
+- Mini-repaso de punteros: preguntas sobre `&x`, `*p`, `p++`, aritmética de punteros.
+- **Función implementada:** `intercambiarCalificaciones(float *a, float *b)` con desreferenciación y temporal.
+- **Bug corregido:** `int temp = *a` → `float temp = *a` (truncado silencioso de decimales).
+- **Conceptos validados:** `&` para obtener dirección, `*` para desreferenciar, `*(base+i)` como equivalente de `base[i]`, `p++` salta al siguiente entero, `&` obligatorio al pasar dirección.
+- **Interrogatorio superado:** explicación de `&x` (dirección), `*p` (valor), `p++` (siguiente entero), por qué sin `&` se produce segfault, por qué `int temp` trunca decimales.
+- **Compilación verificada:** cero warnings con `gcc -Wall -Wextra`.
+- Checkpoint V4 aprobado.
+
+Estado: ✅ Checkpoint V4 aprobado. Próximo: Checkpoint V5 — Memoria dinámica (Fase 5).
+
+---
+
+## Checkpoint V4 — Punteros ✅ (Sesión 8)
+
+- **Reto:** función `intercambiarCalificaciones` que intercambie dos notas mediante punteros; recorrido del array con `*(calificaciones+j)` en `mostrarCalificacion`.
+- **Interrogatorio superado:** `&x` (dirección), `*p` (valor), `p++` (siguiente entero con salto por tipo), `&` obligatorio al pasar dirección (sin él → segfault), tipo del temporal importa (`int` trunca `float` silenciosamente).
+- **Verificación práctica:** compilación limpia con `gcc -Wall -Wextra`, intercambio correcto preservando decimales (4.5 → 4.5, no 4.0).
+
+---
+
 # 🎯 REGLAS DEL CURSO
 
 1. Intentar resolver los retos antes de pedir la solución.
@@ -1218,18 +1269,18 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🎓 Validación de conocimientos previos (Checkpoints V1–V5) — V1 ✅, V2 ✅, V3 ✅
+**Etapa:** 🎓 Validación de conocimientos previos (Checkpoints V1–V5) — V1 ✅, V2 ✅, V3 ✅, V4 ✅
 
 **Proyecto activo:** 🧮 Gestor de Calificaciones (`Pruebas Varias/Practicas OpenCode/Validacion V1-V5/`) — vehículo integrador de las validaciones V1–V5.
 
-**Próximo checkpoint:** V4 — Punteros → **Etapa 4 del gestor:** función que intercambie dos calificaciones mediante punteros, recorrer el array con aritmética de punteros, explicar `&x`, `*p` y `p++`.
+**Próximo checkpoint:** V5 — Memoria dinámica → **Etapa 5 del gestor:** array dinámico con `malloc`, redimensionado con `realloc`, llenado por el usuario y liberado con `free`, validando siempre `NULL`. Verificar ausencia de fugas (con `valgrind` si está disponible).
 
 **Después de la validación:** Fase 6 — Structs y estructuras de datos
 
-**Último concepto dominado:** arrays (índices, recorrido, búsqueda, bubble sort con optimización `-j`), strings (`strcpy` vs `=`, conversión 1-indexed → 0-indexed), validación de `scanf` (`== 1`). Antes: prototipos vs implementación, include guards, compilación incremental.
+**Último concepto dominado:** punteros (direcciones, `&`, `*`, desreferenciación, paso por referencia, aritmética de punteros `*(base+i)`, `p++`), tipo del temporal importa (`int` trunca `float`). Antes: arrays (índices, recorrido, búsqueda, bubble sort con optimización `-j`), strings (`strcpy` vs `=`, conversión 1-indexed → 0-indexed), validación de `scanf` (`== 1`).
 
-**Último ejercicio:** Gestor de Calificaciones Etapa 3 ✅ — funciones de búsqueda, ordenamiento y cambio de nombre implementadas, compilación limpia. Antes: Etapa 2 ✅, Etapa 1 ✅, `RetoPunteros.c` ✅, `LongestWord.c` ✅.
+**Último ejercicio:** Gestor de Calificaciones Etapa 4 ✅ — función de intercambio con punteros implementada, bug `int→float` corregido, recorrido con punteros verificado. Antes: Etapa 3 ✅, Etapa 2 ✅, Etapa 1 ✅.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
-**Fases completadas:** Fase 1 — Fundamentos de C ✅ (Sesión 5), Fase 2 — Funciones y modularización ✅ (Sesión 7), Fase 3 — Arrays y cadenas ✅ (Sesión 7).
+**Fases completadas:** Fase 1 — Fundamentos de C ✅ (Sesión 5), Fase 2 — Funciones y modularización ✅ (Sesión 7), Fase 3 — Arrays y cadenas ✅ (Sesión 7), Fase 4 — Punteros ✅ (Sesión 8).

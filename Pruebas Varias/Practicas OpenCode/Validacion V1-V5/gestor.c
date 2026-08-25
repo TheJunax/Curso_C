@@ -37,7 +37,7 @@ int agregarCalificacion(float *calificaciones, int *i){
 void mostrarCalificacion(float *calificaciones, int *i){
     if(*i > 0){
         for(int j=0; j<(*i);j++){
-            printf("Su calificacion %d es: %1.1f\n", (j+1),calificaciones[j]);
+            printf("Su calificacion %d es: %1.1f\n", (j+1),*(calificaciones+j));
         }
     }else{
         printf("No hay calificaciones registrada\n");
@@ -102,4 +102,11 @@ int cambiarNombre(char *nombre, int tamaño){
     scanf("%s", tempNombre);
     strcpy(nombre, tempNombre);
     return *nombre;
+}
+void intercambiarCalificaciones(float *a, float *b){
+    float temp = *a;
+    *a = *b;
+    *b = temp;
+    printf("Notas Intercambiadas con Exito");
+    limpiarBuffer();
 }

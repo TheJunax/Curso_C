@@ -20,7 +20,7 @@ int main(){
 
     printf("\n==================================================\nGESTOR DE CALIFICACIONES\nEstudiante: %s\n==================================================", nombre);
     do{
-        printf("\n1. Agregar calificación \n2. Mostrar calificaciones\n3. Estadísticas (promedio / mayor / menor)\n4. Buscar calificación\n5. Ordenar calificaciones\n6. Cambiar nombre del estudiante\n7. Salir\n");
+        printf("\n1. Agregar calificación \n2. Mostrar calificaciones\n3. Estadísticas (promedio / mayor / menor)\n4. Buscar calificación\n5. Ordenar calificaciones\n6. Cambiar nombre del estudiante\n7. Intercambiar Notas\n8. Salir\n");
 
         //scanf("%d", &opcion);
         if(scanf("%d", &opcion)!=1){
@@ -48,12 +48,22 @@ int main(){
             cambiarNombre(nombre, tamaño); 
             break;
         case 7:
+        int pos1=0, pos2=0;
+            printf("Escriba la 1 posicion que quiera cambiar\n");
+            scanf("%d", &pos1);
+            printf("Escriba la 2 posicion que quiera cambiar\n");
+            scanf("%d", &pos2);
+        
+            intercambiarCalificaciones(&calificaciones[pos1-1],&calificaciones[pos2-1]);
+            break;
+        case 8:
             printf("Chaoo\n");
             break;
         default:
             printf("Opcion Incorrecta intente de nuevo \n");
         }
-    }while(opcion !=7);
+    }while(opcion !=8);
     free(calificaciones);
     return 0;
 }
+//cd "/home/thejunax/Documentos/Pruebas C/Pruebas Varias/Practicas OpenCode/Validacion V1-V5" && gcc -Wall -Wextra -g main.c gestor.c -o output/gestor && ./output/gestor
