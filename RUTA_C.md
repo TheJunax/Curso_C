@@ -18,12 +18,12 @@
 | 2 | Funciones y modularización | ✅ Completado |
 | 3 | Arrays y cadenas | ✅ Completado |
 | 4 | Punteros | ✅ Completado |
-| 5 | Memoria dinámica | 🟡 Por validar |
+| 5 | Memoria dinámica | ✅ Completado |
 | 6 | Structs y estructuras de datos | ⬜ Pendiente |
 | 7 | Archivos | ⬜ Pendiente |
 | 8 | C avanzado y sistemas | ⬜ Pendiente |
 
-**Progreso orientativo:** Validación de conocimientos previos (4 de 5 checkpoints aprobados) — Próximo: Checkpoint V5 (Memoria dinámica).
+**Progreso orientativo:** Validación de conocimientos previos completada (5 de 5 checkpoints aprobados) — Próximo: Fase 6 — Structs y estructuras de datos.
 
 > **Nota:** esta ruta fue adaptada. Las Fases 1–5 corresponden a conocimientos previos ya estudiados; se validan con retos prácticos (sección 🎓) antes de avanzar a la Fase 6.
 
@@ -101,7 +101,7 @@ Las Fases 1–5 corresponden a conocimientos previos ya estudiados. Antes de ava
 
 **Cubre:** stack vs heap, `malloc`/`calloc`/`realloc`/`free`, memory leaks, dangling pointers, validación de asignaciones.
 
-**Resultado:** ⬜ Pendiente
+**Resultado:** ✅ Validado (Sesión 9)
 
 ---
 
@@ -1049,6 +1049,74 @@ void intercambiarCalificaciones(float *a, float *b){
 }
 ```
 
+### Dangling pointer al usar realloc sin actualizar el puntero original
+
+Error:
+
+```c
+void agregarCalificacion(float *calificaciones, int *i, int *tamaño){
+    if(*i == *tamaño){
+        float *tmp = realloc(calificaciones, nuevo * sizeof(float));
+        // tmp tiene la nueva dirección, pero calificaciones sigue con la vieja
+        *tamaño = nuevoTamaño;
+    }
+    scanf("%f", &calificaciones[(*i)]);  // usa el puntero VIEJO → dangling si realloc movió
+}
+```
+
+Aprendizaje:
+
+- `realloc` puede **mover** la memoria a un sitio nuevo y liberar la vieja. Si la función recibe `float*` por valor, la copia local se actualiza pero el puntero de `main()` queda apuntando al sitio liberado.
+- Para que una función pueda actualizar un puntero que vive en el caller, se necesita pasar `float **calificaciones` (puntero al puntero). Dentro se usa `*calificaciones` para acceder al puntero real.
+- `*calificaciones = tmp` solo actualiza la copia local — no alcanza. El caller sigue con el puntero viejo.
+- `realloc` puede no mover la memoria (扩展会 en el mismo sitio), por eso el bug es intermitente y difícil de reproducir.
+
+Solución:
+
+```c
+int agregarCalificacion(float **calificaciones, int *i, int *tamaño){
+    if(*i == *tamaño){
+        float *tmp = realloc(*calificaciones, nuevo * sizeof(float));
+        if(tmp == NULL){ return 1; }
+        *calificaciones = tmp;  // actualiza el puntero de MAIN
+        *tamaño = nuevoTamaño;
+    }
+    scanf("%f", &(*calificaciones)[(*i)]);
+}
+// En main: agregarCalificacion(&calificaciones, &i, &tamaño);
+```
+
+### Asignación fuera del bloque if → puntero nulo
+
+Error:
+
+```c
+float *tempCalificaciones = NULL;
+if(*i == *tamaño){
+    tempCalificaciones = realloc(*calificaciones, ...);
+    *calificaciones = tempCalificaciones;
+}
+*calificaciones = tempCalificaciones;  // FUERA del if → siempre se ejecuta
+// Cuando no hay realloc: tempCalificaciones es NULL → *calificaciones = NULL → segfault
+```
+
+Aprendizaje:
+
+- Las variables inicializadas en `NULL` siguen siendo `NULL` si no se les asigna otro valor.
+- Si una línea está fuera de un bloque `if`, se ejecuta **siempre**, no solo cuando la condición se cumple.
+- Resultado: el primer `scanf` intenta escribir en dirección `NULL` → segfault.
+
+Solución:
+
+```c
+if(*i == *tamaño){
+    float *tmp = realloc(*calificaciones, nuevo * sizeof(float));
+    if(tmp == NULL){ return 1; }
+    *calificaciones = tmp;  // DENTRO del if
+    *tamaño = nuevoTamaño;
+}
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1070,6 +1138,18 @@ void intercambiarCalificaciones(float *a, float *b){
 - **Reto:** implementar funciones de búsqueda, ordenamiento y cambio de nombre en el Gestor de Calificaciones (buscar por posición, bubble sort, `strcpy`).
 - **Interrogatorio superado:** conversión de índices (1-indexed → 0-indexed), optimización de bubble sort (`-j` evita revisar elementos ya ordenados), diferencia entre `=` (copia un char) y `strcpy` (copia un string completo), validación de `scanf` (`== 1`).
 - **Verificación práctica:** compilación limpia con `gcc -Wall -Wextra`, funciones operando correctamente.
+
+## Checkpoint V4 — Punteros ✅ (Sesión 8)
+
+- **Reto:** función `intercambiarCalificaciones` que intercambie dos notas mediante punteros; recorrido del array con `*(calificaciones+j)` en `mostrarCalificacion`.
+- **Interrogatorio superado:** `&x` (dirección), `*p` (valor), `p++` (siguiente entero con salto por tipo), `&` obligatorio al pasar dirección (sin él → segfault), tipo del temporal importa (`int` trunca `float` silenciosamente).
+- **Verificación práctica:** compilación limpia con `gcc -Wall -Wextra`, intercambio correcto preservando decimales (4.5 → 4.5, no 4.0).
+
+## Checkpoint V5 — Memoria dinámica ✅ (Sesión 9)
+
+- **Reto:** array dinámico con `realloc` que crece de 2→4→8 al llenarse, usando `float **` para actualizar el puntero de `main()`. Verificación con `valgrind` (0 leaks, 0 errors).
+- **Interrogatorio superado:** memory leaks (olvidar `free`), `malloc` vs `calloc` (basura vs ceros), `realloc` y dangling pointer (necesidad de temporal + `float **`),为什么 `ptr = realloc(ptr,...)` es peligroso (si falla se pierde el original).
+- **Verificación práctica:** valgrind "All heap blocks were freed -- no leaks are possible", 5 allocs / 5 frees, compilación limpia.
 
 ---
 
@@ -1225,6 +1305,20 @@ Estado: ✅ Checkpoint V4 aprobado. Próximo: Checkpoint V5 — Memoria dinámic
 
 ---
 
+## Sesión 9 — Checkpoint V5 completado ✅: Memoria dinámica
+
+- **Reto:** array dinámico con `realloc` que crece al llenarse, usando `float **` para actualizar el puntero de `main()`.
+- **Conceptos clave:** stack vs heap, `malloc`/`calloc`/`realloc`/`free`, memory leaks, dangling pointers.
+- **Bugs corregidos:**
+  - Dangling pointer: `float *calificaciones` → `float **calificaciones` para que la función actualice el puntero de `main()`.
+  - `free(tempCalificaciones)` con valor `NULL` (realloc falló) → eliminado (no tiene sentido liberar `NULL`).
+  - `*calificaciones = tempCalificaciones` fuera del bloque `if` → siempre ejecutaba, setting `*calificaciones = NULL` → segfault.
+- **Interrogatorio superado:** memory leaks (olvidar `free`), `malloc` vs `calloc` (basura vs ceros), necesidad de `float **` para actualizar el puntero del caller, por qué `ptr = realloc(ptr,...)` es peligroso (si falla se pierde el original).
+- **Verificación con valgrind:** "All heap blocks were freed — no leaks are possible", 5 allocs / 5 frees, 0 errores.
+- **Validación completada:** los 5 checkpoints (V1–V5) están aprobados. Las Fases 1–5 están marcadas como completadas.
+
+Estado: ✅ Checkpoint V5 aprobado. Validación V1–V5 completada. Próximo: Fase 6 — Structs y estructuras de datos.
+
 ## Checkpoint V4 — Punteros ✅ (Sesión 8)
 
 - **Reto:** función `intercambiarCalificaciones` que intercambie dos notas mediante punteros; recorrido del array con `*(calificaciones+j)` en `mostrarCalificacion`.
@@ -1269,18 +1363,18 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🎓 Validación de conocimientos previos (Checkpoints V1–V5) — V1 ✅, V2 ✅, V3 ✅, V4 ✅
+**Etapa:** 🎓 Validación de conocimientos previos COMPLETADA (V1 ✅, V2 ✅, V3 ✅, V4 ✅, V5 ✅)
 
 **Proyecto activo:** 🧮 Gestor de Calificaciones (`Pruebas Varias/Practicas OpenCode/Validacion V1-V5/`) — vehículo integrador de las validaciones V1–V5.
 
-**Próximo checkpoint:** V5 — Memoria dinámica → **Etapa 5 del gestor:** array dinámico con `malloc`, redimensionado con `realloc`, llenado por el usuario y liberado con `free`, validando siempre `NULL`. Verificar ausencia de fugas (con `valgrind` si está disponible).
+**Próximo:** Fase 6 — Structs y estructuras de datos
 
 **Después de la validación:** Fase 6 — Structs y estructuras de datos
 
-**Último concepto dominado:** punteros (direcciones, `&`, `*`, desreferenciación, paso por referencia, aritmética de punteros `*(base+i)`, `p++`), tipo del temporal importa (`int` trunca `float`). Antes: arrays (índices, recorrido, búsqueda, bubble sort con optimización `-j`), strings (`strcpy` vs `=`, conversión 1-indexed → 0-indexed), validación de `scanf` (`== 1`).
+**Último concepto dominado:** memoria dinámica (stack vs heap, `malloc`/`calloc`/`realloc`/`free`, memory leaks, dangling pointers, `float **` para actualizar punteros desde funciones, `valgrind`). Antes: punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** Gestor de Calificaciones Etapa 4 ✅ — función de intercambio con punteros implementada, bug `int→float` corregido, recorrido con punteros verificado. Antes: Etapa 3 ✅, Etapa 2 ✅, Etapa 1 ✅.
+**Último ejercicio:** Gestor de Calificaciones Etapa 5 ✅ — array dinámico con `realloc` creciente, `float **`, valgrind limpio (0 leaks). Antes: Etapa 4 ✅, Etapa 3 ✅, Etapa 2 ✅, Etapa 1 ✅.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
-**Fases completadas:** Fase 1 — Fundamentos de C ✅ (Sesión 5), Fase 2 — Funciones y modularización ✅ (Sesión 7), Fase 3 — Arrays y cadenas ✅ (Sesión 7), Fase 4 — Punteros ✅ (Sesión 8).
+**Fases completadas:** Fase 1 — Fundamentos de C ✅ (Sesión 5), Fase 2 — Funciones y modularización ✅ (Sesión 7), Fase 3 — Arrays y cadenas ✅ (Sesión 7), Fase 4 — Punteros ✅ (Sesión 8), Fase 5 — Memoria dinámica ✅ (Sesión 9).

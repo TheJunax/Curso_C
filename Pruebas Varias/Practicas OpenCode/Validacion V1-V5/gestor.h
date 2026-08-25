@@ -1,7 +1,7 @@
 #ifndef GESTOR_H
 #define GESTOR_H
 
-int agregarCalificacion(float *calificaciones, int *i);
+int agregarCalificacion(float **calificaciones, int *i, int *tamaño);
 void mostrarCalificacion(float *calificaciones, int *i);
 void Estadisticas(float *calificaciones, int *i);
 void limpiarBuffer(void);

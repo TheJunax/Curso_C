@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "gestor.h"
-#define MAX_SIZE 10
+#define MAX_SIZE 2
 
 int main(){
     int opcion=0, i =0;
@@ -30,7 +30,7 @@ int main(){
         }
         switch (opcion){
         case 1:
-            agregarCalificacion(calificaciones, &i);        
+            agregarCalificacion(&calificaciones, &i, &tamaño);        
             break;
         case 2:
             mostrarCalificacion(calificaciones, &i);

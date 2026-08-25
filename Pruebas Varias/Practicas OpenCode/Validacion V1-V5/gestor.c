@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 
 void limpiarBuffer(void){
@@ -15,23 +16,35 @@ void pausar(void){
     getchar();
 }
 
-int agregarCalificacion(float *calificaciones, int *i){
-    printf("Escriba la %i calificacion: ", (*i)+1);
-    if(scanf("%f", &calificaciones[(*i)])!= 1){
-        printf("Entrada invalida\n");
-        limpiarBuffer();
-    }
-    else{
-        if(*(calificaciones+(*i))>=0 && *(calificaciones+(*i)) <= 5){
-            printf("Nota Agregada con exito \n");
-            (*i)++;
-            pausar();
-        }else {
-            printf("Nota invalida \n");
+int agregarCalificacion(float **calificaciones, int *i, int *tamaño){
+    float *tempCalificaciones=NULL;
+    int nuevoTamaño = (*tamaño) *2;
+    if(*i == *tamaño){
+        tempCalificaciones = (float*)realloc(*calificaciones, nuevoTamaño * sizeof(float));
+        if(tempCalificaciones ==NULL){
+            printf("Error al Agrandar memoria\n");
             return 1;
         }
+        *tamaño = nuevoTamaño;
+        *calificaciones = tempCalificaciones;
     }
-    return 0;
+
+        printf("Escriba la %i calificacion: ", (*i)+1);
+        if(scanf("%f", &(*calificaciones)[(*i)])!= 1){
+            printf("Entrada invalida\n");
+            limpiarBuffer();
+        }
+        else{
+            if(*(*(calificaciones)+(*i))>=0 && *(*(calificaciones)+(*i)) <= 5){
+                printf("Nota Agregada con exito \n");
+                (*i)++;
+                pausar();
+            }else {
+                printf("Nota invalida \n");
+                return 1;
+            }
+        }
+        return 0;
 }
 
 void mostrarCalificacion(float *calificaciones, int *i){
