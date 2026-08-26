@@ -19,11 +19,11 @@
 | 3 | Arrays y cadenas | ✅ Completado |
 | 4 | Punteros | ✅ Completado |
 | 5 | Memoria dinámica | ✅ Completado |
-| 6 | Structs y estructuras de datos | ⬜ Pendiente |
+| 6 | Structs y estructuras de datos | 🟢 En progreso |
 | 7 | Archivos | ⬜ Pendiente |
 | 8 | C avanzado y sistemas | ⬜ Pendiente |
 
-**Progreso orientativo:** Validación de conocimientos previos completada (5 de 5 checkpoints aprobados) — Próximo: Fase 6 — Structs y estructuras de datos.
+**Progreso orientativo:** Validación de conocimientos previos completada (5 de 5 checkpoints aprobados) — Fase 6 en progreso: Módulo 1 (Structs) completado, Módulo 2 (Listas enlazadas) pendiente.
 
 > **Nota:** esta ruta fue adaptada. Las Fases 1–5 corresponden a conocimientos previos ya estudiados; se validan con retos prácticos (sección 🎓) antes de avanzar a la Fase 6.
 
@@ -609,7 +609,7 @@ Crear tipos de datos propios y estructuras de datos.
 - [x] Campos
 - [x] Acceso con `.`
 - [x] `typedef`
-- [ ] Structs anidados
+- [x] Structs anidados
 - [x] Arrays de structs
 - [x] Punteros a structs
 - [x] `->`
@@ -1117,6 +1117,35 @@ if(*i == *tamaño){
 }
 ```
 
+### Return de función sin asignar → struct vacío
+
+Error:
+
+```c
+// La función devuelve un Evento modificado...
+Evento crearEvento(Evento e1){
+    strcpy(e1.nombre, "Juan");
+    e1.costo = 1000000;
+    return e1;
+}
+
+// ...pero el resultado nunca se guarda:
+crearEvento(lista[0]);   // el struct modificado se descarta
+// lista[0] sigue con basura → todos los campos en 0
+```
+
+Aprendizaje:
+
+- Una función que `return` un valor **devuelve** ese valor al lugar donde se llamó. Si no lo guardas, se pierde.
+- Es como ordenar comida para llevar y nunca recogerla: la comida existe, pero no la tienes.
+- Regla general: si una función retorna algo que necesitas, **asigna el resultado** a una variable o al destino.
+
+Solución:
+
+```c
+lista[0] = crearEvento(lista[0]);   // guarda el resultado
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1321,6 +1350,19 @@ Estado: ✅ Checkpoint V5 aprobado. Validación V1–V5 completada. Próximo: Fa
 
 ---
 
+## Sesión 11 — Repaso completo de Structs + Structs anidados
+
+- **Repaso integral del Módulo 1 de Structs:** conceptos cubiertos en sesión anterior (struct, campos, `.`, typedef, arrays de structs, punteros a structs, `->`).
+- **Structs anidados:** concepto explicado y practicado con el reto de eventos (struct `Fecha` anidado dentro de struct `Evento`).
+- **Archivos creados:** `Pruebas Varias/Practicas OpenCode/StructsAnidados.c`.
+- **Bug nuevo registrado:** return de función sin asignar — `crearEvento(lista[0])` devolvía un struct pero nunca se guardaba en `lista[0]`.
+- **Concepto reforzado:** `Estudiante lista[]` como parámetro equivale a `Estudiante *lista` (el array ya es puntero al original).
+- **Verificación:** compilación limpia con `gcc -Wall -Wextra`, salida correcta del reto (evento más caro con fecha y nombre).
+
+Estado: ✅ Módulo 1 de Structs completado (todos los conceptos marcados). Próximo: Módulo 2 — Listas enlazadas.
+
+---
+
 ## Sesión 10 — Fase 6 inicio: Structs y typedef
 
 - **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
@@ -1378,15 +1420,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 6 — Structs y estructuras de datos (Módulo 1 en progreso)
+**Etapa:** 🟢 Fase 6 — Structs y estructuras de datos (Módulo 1 completado, Módulo 2 pendiente)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c (práctica de structs)
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c (práctica de structs)
 
-**Próximo:** structs anidados → listas enlazadas → proyecto inventario
+**Próximo:** Módulo 2 — Listas enlazadas (nodo, lista, insertar, eliminar, buscar, recorrer)
 
-**Último concepto dominado:** structs (`typedef`, campos, `.`, arrays, punteros a structs, `->`). Antes: memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** structs anidados (struct dentro de struct, acceso en cascada). Antes: typedef, arrays de structs, punteros a structs, `->`, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** Structs.c — programa de gestión de 3 estudiantes con typedef, array de structs, función de mayor promedio. Antes: Gestor de Calificaciones Etapa 5 ✅.
+**Último ejercicio:** StructsAnidados.c — programa de eventos con struct `Fecha` anidado en `Evento`, función `mayorCosto` con retorno asignado. Antes: Structs.c, Gestor de Calificaciones Etapa 5 ✅.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
