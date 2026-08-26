@@ -669,8 +669,8 @@ Guardar y recuperar información desde archivos.
 - [x] `fclose`
 - [x] `fprintf`
 - [x] `fscanf`
-- [ ] `fgets`
-- [ ] `fputs`
+- [x] `fgets`
+- [x] `fputs`
 - [ ] `fread`
 - [ ] `fwrite`
 - [x] Archivos de texto
@@ -1379,7 +1379,19 @@ Estado: ✅ Módulo 1 de Structs completado (todos los conceptos marcados). Mód
 - **Concepto clave:** archivos como persistencia — los datos sobreviven después de que el programa termina.
 - **Checkpoint pendiente:** archivos binarios (`fread`/`fwrite`), `fgets`/`fputs`.
 
-Estado: 🟢 Fase 7 en progreso — conceptos básicos de archivos completados. Pendientes: `fgets`/`fputs`, binarios, proyecto inventario persistente.
+Estado: 🟢 Fase 7 en progreso — conceptos básicos de archivos + fgets/fputs completados. Pendientes: binarios (`fread`/`fwrite`), proyecto inventario persistente.
+
+---
+
+## Sesión 12 (continuación) — fgets y fputs
+
+- **Conceptos cubiertos:** `fgets` (leer línea completa), `fputs` (escribir string tal cual), `sscanf` (leer de un string).
+- **Cambio en RetoArchivos.c:** `fprintf` → `fputs` para escritura, `fscanf` → `fgets` + `sscanf` para lectura.
+- **Bug corregido:** `fgets(buffer, 2, f)` — el `2` limitaba la lectura a 2 caracteres. Corregido a `fgets(buffer, 100, f)`.
+- **Verificación:** compilación limpia, salida correcta con ambos estudiantes.
+- **Pendiente:** archivos binarios (`fread`/`fwrite`).
+
+Estado: 🟢 Fase 7 en progreso — fgets/fputs completados. Próxima sesión: archivos binarios.
 
 ---
 
@@ -1446,9 +1458,9 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 **Próximo:** `fgets`/`fputs` → archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente
 
-**Último concepto dominado:** archivos de texto (`FILE`, `fopen`, `fclose`, `fprintf`, `fscanf`, modos `r`/`w`/`a`). Antes: structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** `fgets`/`fputs` (lectura/escritura de líneas completas), `sscanf` (lectura de strings). Antes: archivos de texto, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** RetoArchivos.c — gestor de calificaciones con persistencia (struct `ListaEstudiante`, guardar en `"w"`, cargar en `"r"`, append en `"a"`). Antes: StructsAnidados.c.
+**Último ejercicio:** RetoArchivos.c — gestor con `fgets`+`sscanf` para lectura y `fputs` para escritura. Antes: StructsAnidados.c.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 

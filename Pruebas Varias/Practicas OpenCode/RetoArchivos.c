@@ -6,8 +6,8 @@ int guardarDatos(){
         printf("Error\n");
         return 1;
     }
-    fprintf(f,"Juan 4.5 3.0 5.0\n");
-    fprintf(f,"Maria 5 4.8\n");
+    fputs("Juan 4.5 3.0 5.0\n",f);
+    fputs("Maria 5 4.8\n",f);
     fclose(f);
     
     return 0;
@@ -18,7 +18,9 @@ typedef struct {
 }ListaEstudiante;
 
 ListaEstudiante agregarALista(FILE *f,ListaEstudiante e){
-    fscanf(f,"%s %f %f %f", e.nombre, &(e.nota[0]),&(e.nota[1]), &(e.nota[2]) );
+    char buffer[100];
+    fgets(buffer,100,f);
+    sscanf(buffer,"%s %f %f %f", e.nombre, &(e.nota[0]),&(e.nota[1]), &(e.nota[2]) );
     return e;
 }
 
