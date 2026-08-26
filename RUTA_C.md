@@ -835,6 +835,7 @@ Podemos estudiar superficialmente temas de fases futuras si aparecen durante una
 - 🧭 Memoria dinámica temprana (Fase 5): el gestor ya usa `malloc` + chequeo `NULL` + `free` desde la Etapa 1 (decisión de diseño del estudiante). Registrado como adelanto; NO marca módulos de Fase 5 — se formalizará en V5 (`realloc`, fugas, `valgrind`).
 - 🧭 Punteros aplicados (Fase 4): clase y reto completos en Sesión 4; el gestor usa paso por referencia y recorrido con `*(base+i)` desde la Etapa 1. Formalización pendiente en V4 (swap con punteros, explicación de `p++`).
 - 🧭 Fase 6 parcial: Módulo 1 (Structs) completado. Módulo 2 (Listas enlazadas) y Módulo 3 (Pila, Cola, Árbol) omitidos por decisión del estudiante en Sesión 11. Se avanza a Fase 7 (Archivos). Los structs的基础 son suficientes para archivos; listas enlazadas se pueden retomar después si se necesitan para proyectos avanzados.
+- 🧭 Pointer arithmetic avanzada (Sesión 13): endianness (little/big endian), padding de alineación en structs, `unsigned char *` vs `char *` (extensión de signo). Ejercicios 1–10 del PDF "Pointer Arithmetic Exercises". Ejercicios 11–12 pendientes. Tema no cubierto en la ruta formal; refuerzo de la Fase 4 (Punteros).
 
 ---
 
@@ -1147,6 +1148,28 @@ Solución:
 lista[0] = crearEvento(lista[0]);   // guarda el resultado
 ```
 
+### Extensión de signo al castear `char *` a `int` en printf
+
+Error:
+
+```c
+char *ptr = (char*) &my_struct;
+printf("%02X", *(ptr + 7));   // imprime FFFFFFAA en vez de AA
+```
+
+Aprendizaje:
+
+- En x86 Linux, `char` es con signo (-128 a 127). Si el byte tiene valor ≥ 0x80 (128), se interpreta como negativo.
+- `printf` promueve `char` a `int` con **extensión de signo**: copia el bit de signo (1) a los 3 bytes altos → `0xFFFFFFAA`.
+- Para recorrer memoria byte por byte sin este problema, usar siempre `unsigned char *`.
+
+Solución:
+
+```c
+unsigned char *ptr = (unsigned char*) &my_struct;
+printf("%02X", *(ptr + 7));   // imprime AA
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1395,6 +1418,25 @@ Estado: 🟢 Fase 7 en progreso — fgets/fputs completados. Próxima sesión: a
 
 ---
 
+## Sesión 13 — Ejercicios de Pointer Arithmetic (PDF externo)
+
+- **Fuente:** PDF "Pointer Arithmetic Exercises" (12 ejercicios).
+- **Ejercicios resueltos:** 1–10 (ejercicios 11–12 pendientes).
+- **Temas cubiertos:**
+  - Endianness (little endian vs big endian) — cómo se ordenan los bytes de un `int` en memoria.
+  - Casting a `unsigned char *` para recorrer memoria byte por byte.
+  - Diferencia entre `char *` y `unsigned char *`: extensión de signo con valores ≥ 0x80.
+  - Aritmética de punteros sobre arrays (`*(p + 4 - 2)`).
+  - Structs con padding de alineación — `char` + `int` + `short` genera 3 bytes de padding.
+  - Casting de puntero a `short *` para leer 2 bytes desde una dirección arbitraria.
+- **Archivo creado:** `Pruebas Varias/Practicas AvanzaTech/12 Retos Pointer/endian_exercises.c` (con dumps de memoria para visualizar endianness y padding).
+- **Bug/ Concepto aprendido:** `char *ptr` con byte ≥ 0x80 + `%02X` produce `FFFFFFAA` en vez de `AA` por extensión de signo. Solución: usar `unsigned char *`.
+- **Verificación:** compilación limpia con `gcc -Wall -Wextra`, todos los ejercicios verificados con ejecución real.
+
+Estado: 🧭 Adelanto de aritmética de punteros avanzada (endianness, padding, casting). Fase 7 pendiente (archivos binarios).
+
+---
+
 ## Sesión 10 — Fase 6 inicio: Structs y typedef
 
 - **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
@@ -1452,15 +1494,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + 🧭 Adelanto pointer arithmetic
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c
 
-**Próximo:** `fgets`/`fputs` → archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente
+**Próximo:** archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
 
-**Último concepto dominado:** `fgets`/`fputs` (lectura/escritura de líneas completas), `sscanf` (lectura de strings). Antes: archivos de texto, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** Endianness (little/big endian), padding de alineación en structs, `unsigned char *` vs `char *` (extensión de signo). Antes: `fgets`/`fputs`, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** RetoArchivos.c — gestor con `fgets`+`sscanf` para lectura y `fputs` para escritura. Antes: StructsAnidados.c.
+**Último ejercicio:** Ejercicios 1–10 del PDF "Pointer Arithmetic Exercises" — dumps de memoria, endianness verificado, struct con padding. Antes: RetoArchivos.c.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
