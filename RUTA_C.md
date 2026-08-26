@@ -20,10 +20,10 @@
 | 4 | Punteros | ✅ Completado |
 | 5 | Memoria dinámica | ✅ Completado |
 | 6 | Structs y estructuras de datos | 🟢 En progreso |
-| 7 | Archivos | ⬜ Pendiente |
+| 7 | Archivos | 🟢 En progreso |
 | 8 | C avanzado y sistemas | ⬜ Pendiente |
 
-**Progreso orientativo:** Validación V1–V5 completada — Fase 6 parcial (Structs ✅, listas enlazadas omitidas) → Próximo: Fase 7 — Archivos.
+**Progreso orientativo:** Validación V1–V5 completada — Fase 6 parcial (Structs ✅, listas enlazadas omitidas) — Fase 7 en progreso (archivos de texto ✅, binarios pendientes).
 
 > **Nota:** esta ruta fue adaptada. Las Fases 1–5 corresponden a conocimientos previos ya estudiados; se validan con retos prácticos (sección 🎓) antes de avanzar a la Fase 6.
 
@@ -664,19 +664,19 @@ Guardar y recuperar información desde archivos.
 
 ## Conceptos
 
-- [ ] `FILE`
-- [ ] `fopen`
-- [ ] `fclose`
-- [ ] `fprintf`
-- [ ] `fscanf`
+- [x] `FILE`
+- [x] `fopen`
+- [x] `fclose`
+- [x] `fprintf`
+- [x] `fscanf`
 - [ ] `fgets`
 - [ ] `fputs`
 - [ ] `fread`
 - [ ] `fwrite`
-- [ ] Archivos de texto
+- [x] Archivos de texto
 - [ ] Archivos binarios
-- [ ] Modos `r`, `w`, `a`
-- [ ] Manejo de errores
+- [x] Modos `r`, `w`, `a`
+- [x] Manejo de errores
 
 ## Proyecto
 
@@ -692,11 +692,11 @@ Extender el proyecto anterior para:
 
 ## Checkpoint Fase 7
 
-- [ ] Abrir archivos
-- [ ] Leer archivos
-- [ ] Escribir archivos
+- [x] Abrir archivos
+- [x] Leer archivos
+- [x] Escribir archivos
 - [ ] Trabajar con archivos binarios
-- [ ] Manejar errores
+- [x] Manejar errores
 - [ ] Crear aplicación persistente
 
 ---
@@ -1364,6 +1364,25 @@ Estado: ✅ Módulo 1 de Structs completado (todos los conceptos marcados). Mód
 
 ---
 
+## Sesión 12 — Fase 7: Archivos y persistencia
+
+- **Conceptos cubiertos:** `FILE`, `fopen`, `fclose`, `fprintf`, `fscanf`, modos `r`/`w`/`a`, manejo de errores (`NULL`).
+- **Archivos creados:**
+  - `Pruebas Varias/Practicas OpenCode/Archivos/Ejemplo 1.c` — escritura básica con `fprintf`
+  - `Pruebas Varias/Practicas OpenCode/Archivos/Ejemplo 2.c` — escritura + lectura con `fscanf`
+  - `Pruebas Varias/Practicas OpenCode/Archivos/Practica.c` — append (`"a"`) + lectura de contactos
+  - `Pruebas Varias/Practicas OpenCode/RetoArchivos.c` — gestor de calificaciones con archivos (struct + guardar/cargar)
+- **Bugs aprendidos:**
+  - `fscanf` con `%s: %f` no funciona — `%s` se come los dos puntos. Solución: formato sin dos puntos (`%s %f`).
+  - Paso de `FILE *` a función: tipo correcto es `FILE *f`, no `FILE f`.
+  - `fprintf` sin `\n` pega líneas en el archivo.
+- **Concepto clave:** archivos como persistencia — los datos sobreviven después de que el programa termina.
+- **Checkpoint pendiente:** archivos binarios (`fread`/`fwrite`), `fgets`/`fputs`.
+
+Estado: 🟢 Fase 7 en progreso — conceptos básicos de archivos completados. Pendientes: `fgets`/`fputs`, binarios, proyecto inventario persistente.
+
+---
+
 ## Sesión 10 — Fase 6 inicio: Structs y typedef
 
 - **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
@@ -1421,15 +1440,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟡 Fase 6 parcial — Structs completados, listas enlazadas/otras estructuras omitidas. → Fase 7 — Archivos (próxima)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c
 
-**Próximo:** Fase 7 — Archivos (FILE, fopen, fclose, fprintf, fscanf, fgets, modo r/w/a)
+**Próximo:** `fgets`/`fputs` → archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente
 
-**Último concepto dominado:** structs anidados (struct dentro de struct, acceso en cascada). Antes: typedef, arrays de structs, punteros a structs, `->`, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** archivos de texto (`FILE`, `fopen`, `fclose`, `fprintf`, `fscanf`, modos `r`/`w`/`a`). Antes: structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** StructsAnidados.c — programa de eventos con struct `Fecha` anidado en `Evento`, función `mayorCosto` con retorno asignado. Antes: Structs.c, Gestor de Calificaciones Etapa 5 ✅.
+**Último ejercicio:** RetoArchivos.c — gestor de calificaciones con persistencia (struct `ListaEstudiante`, guardar en `"w"`, cargar en `"r"`, append en `"a"`). Antes: StructsAnidados.c.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
