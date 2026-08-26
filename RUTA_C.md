@@ -23,7 +23,7 @@
 | 7 | Archivos | ⬜ Pendiente |
 | 8 | C avanzado y sistemas | ⬜ Pendiente |
 
-**Progreso orientativo:** Validación de conocimientos previos completada (5 de 5 checkpoints aprobados) — Fase 6 en progreso: Módulo 1 (Structs) completado, Módulo 2 (Listas enlazadas) pendiente.
+**Progreso orientativo:** Validación V1–V5 completada — Fase 6 parcial (Structs ✅, listas enlazadas omitidas) → Próximo: Fase 7 — Archivos.
 
 > **Nota:** esta ruta fue adaptada. Las Fases 1–5 corresponden a conocimientos previos ya estudiados; se validan con retos prácticos (sección 🎓) antes de avanzar a la Fase 6.
 
@@ -834,6 +834,7 @@ Podemos estudiar superficialmente temas de fases futuras si aparecen durante una
 
 - 🧭 Memoria dinámica temprana (Fase 5): el gestor ya usa `malloc` + chequeo `NULL` + `free` desde la Etapa 1 (decisión de diseño del estudiante). Registrado como adelanto; NO marca módulos de Fase 5 — se formalizará en V5 (`realloc`, fugas, `valgrind`).
 - 🧭 Punteros aplicados (Fase 4): clase y reto completos en Sesión 4; el gestor usa paso por referencia y recorrido con `*(base+i)` desde la Etapa 1. Formalización pendiente en V4 (swap con punteros, explicación de `p++`).
+- 🧭 Fase 6 parcial: Módulo 1 (Structs) completado. Módulo 2 (Listas enlazadas) y Módulo 3 (Pila, Cola, Árbol) omitidos por decisión del estudiante en Sesión 11. Se avanza a Fase 7 (Archivos). Los structs的基础 son suficientes para archivos; listas enlazadas se pueden retomar después si se necesitan para proyectos avanzados.
 
 ---
 
@@ -1359,7 +1360,7 @@ Estado: ✅ Checkpoint V5 aprobado. Validación V1–V5 completada. Próximo: Fa
 - **Concepto reforzado:** `Estudiante lista[]` como parámetro equivale a `Estudiante *lista` (el array ya es puntero al original).
 - **Verificación:** compilación limpia con `gcc -Wall -Wextra`, salida correcta del reto (evento más caro con fecha y nombre).
 
-Estado: ✅ Módulo 1 de Structs completado (todos los conceptos marcados). Próximo: Módulo 2 — Listas enlazadas.
+Estado: ✅ Módulo 1 de Structs completado (todos los conceptos marcados). Módulo 2 (listas enlazadas) omitido por decisión del estudiante. Próximo: Fase 7 — Archivos.
 
 ---
 
@@ -1420,11 +1421,11 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 6 — Structs y estructuras de datos (Módulo 1 completado, Módulo 2 pendiente)
+**Etapa:** 🟡 Fase 6 parcial — Structs completados, listas enlazadas/otras estructuras omitidas. → Fase 7 — Archivos (próxima)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c (práctica de structs)
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c
 
-**Próximo:** Módulo 2 — Listas enlazadas (nodo, lista, insertar, eliminar, buscar, recorrer)
+**Próximo:** Fase 7 — Archivos (FILE, fopen, fclose, fprintf, fscanf, fgets, modo r/w/a)
 
 **Último concepto dominado:** structs anidados (struct dentro de struct, acceso en cascada). Antes: typedef, arrays de structs, punteros a structs, `->`, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
