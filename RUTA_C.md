@@ -1546,6 +1546,22 @@ Estado: 🟢 Fases 6-7 siguen en progreso. Reto CoderByte3 completado + reto ext
 
 ---
 
+## Sesión 15 — Ejercicio tipo parcial "Gestor de Películas" (RetoPeliculas)
+
+- **Nuevo ejercicio tipo parcial** iniciado: videoteca con struct `Pelicula` + memoria dinámica (`Pruebas Varias/Practicas OpenCode/RetoPeliculas.c`).
+- **Funciones hasta ahora:** `iniciarVideoteca` (malloc, valida NULL), `agregarPelicula` (realloc + puntero temporal), `imprimirVideoteca`. `main` agrega una película y la imprime.
+- **Bug grave corregido — corrupción de memoria (`malloc(): corrupted top size`):**
+  - `**lista = *tempLista;` tras `realloc` → copiaba el bloque sobre sí mismo y corrompía el heap. Corregido a `*lista = tempLista;` (solo reapuntar).
+  - **Orden de parámetros invertido** entre `iniciarVideoteca(lista, cantidad, capacidad)` y `agregarPelicula(lista, capacidad, cantidad)` → escribía en el índice equivocado fuera del bloque (invalid writes detectados con valgrind). Corregido unificando el orden `(lista, capacidad, cantidad)` en firmas y llamadas.
+- **Concepto reforzado:** verificación con `valgrind` (invalid writes = corrupción; `definitely lost` = leak). Después del fix, la impresión es correcta y sin invalid writes.
+- **Pendiente:** `free` final (valgrind reporta 204 bytes lost), `buscarPorId`, `actualizarDuracion`, `eliminarPelicula`, `calcularValorTotal`. Etapa cerrada a petición del estudiante (se retomará otro día).
+- **Además:** asistida la restauración de `RetoStructs.c` (reto de estudiantes) recuperado del commit de Sesión 12 — se había quedado vacío.
+- **Teoría:** tabla-resumen de conceptos para examen (tipos, punteros, memoria dinámica, archivos, errores clásicos).
+
+Estado: 🟢 Fases 6-7 en progreso. RetoPeliculas en Etapa 1 (alta/impresión funcionando, pendiente liberación y resto de funciones). Pendiente Fase 7: archivos binarios, proyecto inventario persistente.
+
+---
+
 ## Sesión 10 — Fase 6 inicio: Structs y typedef
 
 - **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
@@ -1603,15 +1619,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3, RetoPeliculas)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c
 
 **Próximo:** archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
 
-**Último concepto dominado:** Punteros dobles y niveles de indirección (`Producto **` vs `Producto *`, `(*pp)[i]` vs `pp[i]`, segfault por mezclar niveles), `->` vs `.`, desplazamiento correcto al eliminar (`j=i`, condición en cabecera del `for`), código muerto/inalcanzable, `strcpy` en structs. Antes: endianness, padding, `fgets`/`fputs`, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** Consistencia del orden de parámetros entre funciones que reciben punteros (evita corrupción de memoria), verificación de memoria con `valgrind` (invalid writes, leaks), `sizeof(struct)` en `malloc`/`realloc`, puntero doble `(*pp)[i]`. Antes: punteros dobles y niveles de indirección, `->` vs `.`, desplazamiento al eliminar (`j=i`), código muerto/inalcanzable, `strcpy` en structs, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
 
-**Último ejercicio:** Reto CoderByte3 completado + reto extra `eliminarProducto` validado (ID 2 del medio y ID 4 último) en `Pruebas Varias/Practicas OpenCode/RetoCoderByte.c`. Antes: ejercicios 1–10 del PDF "Pointer Arithmetic Exercises".
+**Último ejercicio:** Ejercicio tipo parcial "Gestor de Películas" (`RetoPeliculas.c`): struct + `malloc`/`realloc` dinámico, `agregarPelicula`, `imprimirVideoteca` funcionando; corregido bug de `**lista = *tempLista` y orden de parámetros invertido (causaba `malloc(): corrupted top size`). Pendiente: `free` final, buscar/actualizar/eliminar/valor-total. Antes: reto CoderByte3 + `eliminarProducto`, ejercicios 1–10 PDF.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
