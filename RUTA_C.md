@@ -1170,6 +1170,93 @@ unsigned char *ptr = (unsigned char*) &my_struct;
 printf("%02X", *(ptr + 7));   // imprime AA
 ```
 
+### Mezclar niveles de indirección con puntero doble → segfault (CoderByte3)
+
+Error:
+
+```c
+// eliminarProducto recibe Producto **inventario (puntero doble)
+if((*inventario[i]).id == id){   // accede a memoria inválida
+```
+
+```
+Program received signal SIGSEGV, Segmentation fault.
+eliminarProducto (...) at RetoCoderByte.c:113
+```
+
+Aprendizaje:
+
+- `inventario[i]` = `*(inventario + i)`: avanza `i` veces el tamaño de un `Producto *` y lee el contenido **como si fuera un puntero**. Pero la memoria ahí no es un array de punteros, sino un array de structs → interpreta basura como dirección → segfault.
+- Con puntero doble se necesita **una desreferencia más** para llegar al struct: `*inventario` es el puntero real (`Producto *`), y `(*inventario)[i]` es el struct i. Con puntero simple `Producto *p` basta `p[i]`.
+- Regla: con `Producto **pp` → `(*pp)[i].campo` o `(*pp + i)->campo`. `pp[i]` solo sería válido si `pp` fuera un array de punteros, que no es este caso.
+
+Solución:
+
+```c
+if((*inventario)[i].id == id){   // la desreferencia *inventario llega al array real
+```
+
+### Desplazamiento al eliminar desde `j = i-1` en vez de `j = i` (CoderByte3)
+
+Error:
+
+```c
+int i = /* índice del producto a eliminar */;
+for(int j = i-1; j < *cantidadProductos; j++){   // empieza UNA casilla antes
+    inventario[j] = inventario[j+1];             // mueve el producto a borrar hacia atrás
+}
+```
+
+Aprendizaje:
+
+- Al eliminar el elemento en el índice `i`, el primer desplazamiento debe **copiar el elemento `i+1` sobre `i`**, no el `i` sobre `i-1`.
+- Empezar en `j = i-1` copia `inventario[i]` (el producto a borrar) sobre la posición anterior → en realidad elimina el producto **anterior** y "tapa" el hueco mal, dejando el que se quería borrar (o un id repetido).
+- Resultado visible: al borrar el ID 2, desaparecía el Teclado (ID 1) y quedaba el Mouse con ID 2.
+- Regla: el desplazamiento de "cerrar hueco" arranca en el índice del hueco (`j = i`), copiando `j+1 → j` hasta `cantidad-2`.
+
+Solución:
+
+```c
+for(int j = i; j < (*cantidadProductos)-1; j++){   // empieza en i, condición en la cabecera
+    inventario[j] = inventario[j+1];               // j+1 nunca sale del rango
+}
+```
+
+### Código muerto / inalcanzable: `i == cantidad` dentro de `for(i < cantidad)` (CoderByte3)
+
+Error:
+
+```c
+for(int i=0; i<*cantidadProductos;i++){
+    if(i == (*cantidadProductos)){   // imposible: i siempre es menor que cantidad
+        (*cantidadProductos)--;
+        break;
+    }
+    ...
+}
+```
+
+Aprendizaje:
+
+- La condición del `for` garantiza `i < *cantidadProductos` en todas las iteraciones, así que `i == *cantidadProductos` jamás se cumple → el bloque es **inalcanzable** (código muerto).
+- No rompe nada, pero no aporta nada y confunde al lector. Se detecta razonando sobre los invariantes del bucle (¿puede `i` alcanzar ese valor alguna vez?).
+- El caso "eliminar el último" ya lo maneja el desplazamiento: si `i` es el último índice, el bucle interno no ejecuta ninguna copia (por el límite `j < cantidad-1`) y solo decrementa.
+
+Solución:
+
+```c
+// eliminar el if inalcanzable (comentarlo o borrarlo); el desplazamiento cubre el caso del último
+for(int i=0; i<*cantidadProductos;i++){
+    if((*inventario)[i].id == id){
+        for(int j=i; j<(*cantidadProductos)-1; j++){
+            (*inventario)[j] = (*inventario)[j+1];
+        }
+        (*cantidadProductos)--;
+        break;
+    }
+}
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1437,6 +1524,28 @@ Estado: 🧭 Adelanto de aritmética de punteros avanzada (endianness, padding, 
 
 ---
 
+## Sesión 14 — Reto CoderByte3: inventario dinámico + punteros dobles y structs
+
+- **Reto resuelto completo:** `Pruebas Varias/Practicas AvanzaTech/CoderByte3.c` (inventario de `Producto` con memoria dinámica: alta, búsqueda, actualización, listado, valor total, liberación).
+- **Bug inicial de compilación corregido:** array de structs reservado con `sizeof(int)` casteado a `int*` → corregido a `sizeof(Producto)` y `Producto*`. Asignación de string con `=` → `strcpy`.
+- **Preguntas conceptuales trabajadas:**
+  - Punteros simples vs dobles: `Producto *p` → `p[i]` es el struct; `Producto **pp` → `(*pp)[i]` es el struct. `pp[i]` NO (indexa como array de punteros).
+  - `->` vs `.` según el nivel: `(*inventario + i)->campo` equivale a `(*inventario)[i].campo`.
+  - `realloc` + puntero doble para redimensionar el array del caller (reposo del checkpoint V5).
+- **Bugs corregidos guiadamente:**
+  - Segfault por `(*inventario[i])` con doble puntero → `(*inventario)[i]` (cazado con GDB).
+  - `id` vs índice: `buscarProductoPorId`/`actualizarCantidad` comparaban `.id` contra `id-1` → todo quedaba desfasado una casilla. Corregido a `.id == id`.
+  - Flag de "no encontrado" mal puesto (se marcaba en cada iteración no coincidente) → patrón flag + `break` con error único fuera del bucle.
+  - Desplazamiento al eliminar desde `j = i-1` en vez de `j = i` → eliminaba el producto anterior. Corregido.
+  - `if(j == cantidad-1){break;}` refactorizado a la cabecera del `for` (`j < cantidad-1`).
+  - Código muerto/inalcanzable (`i == cantidad` dentro de `for i < cantidad`) detectado y comentado.
+- **Reto extra completado y validado (ambos casos):** `eliminarProducto` en `Pruebas Varias/Practicas OpenCode/RetoCoderByte.c` — elimina por id (ID 2 del medio y ID 4 último), compacta el array, actualiza total. Verificado con `gcc -Wall -Wextra` (cero warnings) y ejecución real.
+- **Además (teoría):** `%[^\n]` en `scanf` vs `fgets` para leer strings con espacios; recomendación de `fgets` + limpieza del `\n`.
+
+Estado: 🟢 Fases 6-7 siguen en progreso. Reto CoderByte3 completado + reto extra `eliminarProducto` validado. Pendiente Fase 7: archivos binarios (`fread`/`fwrite`), proyecto inventario persistente.
+
+---
+
 ## Sesión 10 — Fase 6 inicio: Structs y typedef
 
 - **Conceptos cubiertos:** definición de `struct`, campos, acceso con `.`, `typedef`, arrays de structs, punteros a structs, operador `->`.
@@ -1494,15 +1603,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + 🧭 Adelanto pointer arithmetic
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c
 
 **Próximo:** archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
 
-**Último concepto dominado:** Endianness (little/big endian), padding de alineación en structs, `unsigned char *` vs `char *` (extensión de signo). Antes: `fgets`/`fputs`, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
+**Último concepto dominado:** Punteros dobles y niveles de indirección (`Producto **` vs `Producto *`, `(*pp)[i]` vs `pp[i]`, segfault por mezclar niveles), `->` vs `.`, desplazamiento correcto al eliminar (`j=i`, condición en cabecera del `for`), código muerto/inalcanzable, `strcpy` en structs. Antes: endianness, padding, `fgets`/`fputs`, structs anidados, typedef, arrays de structs, punteros a structs, memoria dinámica, punteros, arrays, strings, funciones, fundamentos.
 
-**Último ejercicio:** Ejercicios 1–10 del PDF "Pointer Arithmetic Exercises" — dumps de memoria, endianness verificado, struct con padding. Antes: RetoArchivos.c.
+**Último ejercicio:** Reto CoderByte3 completado + reto extra `eliminarProducto` validado (ID 2 del medio y ID 4 último) en `Pruebas Varias/Practicas OpenCode/RetoCoderByte.c`. Antes: ejercicios 1–10 del PDF "Pointer Arithmetic Exercises".
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
