@@ -836,6 +836,7 @@ Podemos estudiar superficialmente temas de fases futuras si aparecen durante una
 - 🧭 Punteros aplicados (Fase 4): clase y reto completos en Sesión 4; el gestor usa paso por referencia y recorrido con `*(base+i)` desde la Etapa 1. Formalización pendiente en V4 (swap con punteros, explicación de `p++`).
 - 🧭 Fase 6 parcial: Módulo 1 (Structs) completado. Módulo 2 (Listas enlazadas) y Módulo 3 (Pila, Cola, Árbol) omitidos por decisión del estudiante en Sesión 11. Se avanza a Fase 7 (Archivos). Los structs的基础 son suficientes para archivos; listas enlazadas se pueden retomar después si se necesitan para proyectos avanzados.
 - 🧭 Pointer arithmetic avanzada (Sesión 13): endianness (little/big endian), padding de alineación en structs, `unsigned char *` vs `char *` (extensión de signo). Ejercicios 1–10 del PDF "Pointer Arithmetic Exercises". Ejercicios 11–12 pendientes. Tema no cubierto en la ruta formal; refuerzo de la Fase 4 (Punteros).
+- 🧭 Booleanos en C (Sesión 17): `stdbool.h` (`bool`, `true`, `false`, desde C99). Ejemplo funcional `Booleans.c`. El estudiante los **descartó** para sus programas, prefiriendo banderas con `int` (0/1). Quedan como referencia/adelanto; NO marca ningún módulo formal.
 
 ---
 
@@ -1337,6 +1338,22 @@ for(int i=0; i<*cantidadProductos;i++){
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 17 — Booleanos en C (`stdbool.h`) + diseño de Parcial Gestor de Estudiantes
+
+- **Tema:** los booleanos en C (`<stdbool.h>`: `bool`, `true`, `false`, desde C99).
+  - Concepto clave: en C no hay `bool` nativo; se usa `int` (0 = falso, distinto de 0 = verdadero). `stdbool.h` es un "disfraz" legible de `int` pequeño sin signo (0/1).
+  - Explicado: `%d` funciona para imprimir un `bool` (internamente es entero), `if(encendido)` (no `== true`, anti-patrón), `!` para negar, guardar resultado de comparación en `bool`.
+  - **Ejemplo funcional** creado y verificado: `Pruebas Varias/Booleans.c`. Compila limpio con `gcc -Wall -Wextra`; salida correcta (ENCEndido, esMayor=1, apagado=0).
+  - **Decisión del estudiante:** descartó usar `bool` en el parcial → prefiere seguir manejando **banderas con `int`** (su estilo clásico). Los booleanos quedan como referencia/adelanto.
+- **Reto nuevo (Parcial integrador de alto nivel):** **"Gestor de Estudiantes"** — CRUD completo dinámico con punteros dobles, structs y `realloc`.
+  - Estructura `Estudiante { int id; char nombre[50]; float nota; }`.
+  - Funciones (firmas dadas): `agregarEstudiante`, `buscarPorId`, `eliminarPorId`, `contarAprobados`, `estaVacia`, `liberarLista` — todas con banderas `int` (1/0), SIN `bool`.
+  - Menú `do...while` con bandera de continuar; validaciones de entrada; `realloc` con deref correcta `(*lista)[i]`; validación `NULL`; valgrind 0 fugas; `gcc -Wall -Wextra`.
+  - **Pendiente de implementación por el estudiante** (no iniciado). Decisiones de diseño que debe resolver: ¿ID manual o auto-incrementado / manejo de duplicados? ¿Qué validaciones incluir? ¿un solo archivo o `main.c` + funciones + `.h`?
+- **Estado:** 🟢 Parcial "Gestor de Estudiantes" **asignado y pendiente de código** (se hará en la próxima sesión). Fase 7 sigue en progreso (archivos binarios `fread`/`fwrite` pendientes).
+
+---
+
 ## Sesión 16 — RetoPeliculas completado: liberar memoria + CRUD dinámico
 
 - **Reto:** terminar el ejercicio tipo parcial "Gestor de Películas" (`Pruebas Varias/Practicas OpenCode/RetoPeliculas.c`).
@@ -1679,15 +1696,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3, RetoPeliculas completados)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + Parcial Gestor de Estudiantes asignado (CRUD + punteros dobles)
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c + Booleans.c
 
-**Próximo:** archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
+**Próximo:** ⏳ **implementar el Parcial "Gestor de Estudiantes"** (CRUD dinámico con punteros dobles — asignado en Sesión 17), luego archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
 
-**Último concepto dominado:** Bug silencioso de conversión implícita de tipos (retorno `int` con `float` trunca sin avisar `-Wall -Wextra`; desajuste con `%f` produce basura), `*lista=NULL` después de `free` (dangling pointer / doble free = comportamiento indefinido), cierre de hueco al eliminar con puntero doble `(*lista)[i]` + decremento de cantidad una sola vez fuera del `for` interno. Antes: consistencia del orden de parámetros, valgrind (invalid writes, leaks), `sizeof(struct)`, puntero doble `(*pp)[i]`, `->` vs `.`, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
+**Último concepto dominado:** Booleanos en C (`stdbool.h`: `bool`/`true`/`false`), aunque el estudiante optó por **banderas `int`** (estilo clásico 0/1) para sus programas. Antes: bug silencioso de conversión implícita de tipos, `*lista=NULL` después de `free` (dangling pointer / doble free = indefinido), cierre de hueco al eliminar con puntero doble `(*lista)[i]`, consistencia del orden de parámetros, valgrind, `sizeof(struct)`, puntero doble `(*pp)[i]`, `->` vs `.`, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
 
-**Último ejercicio:** RetoPeliculas completado en su totalidad (`RetoPeliculas.c`): `iniciarVideoteca`, `agregarPelicula`, `buscarporId`, `actualizarDuracion`, `eliminarPelicula`, `valorTotal`, `liberarMemoria`. Valgrind 0 fugas / 0 errores; casos límite de eliminación validados; bug de truncado `int`→`float` corregido. Antes: reto CoderByte3 + `eliminarProducto`, ejercicios 1–10 PDF.
+**Último ejercicio:** Ejemplo de booleanos `Booleans.c` (Sesión 17, compilado y verificado). Parcial "Gestor de Estudiantes" **asignado y pendiente de implementación**. Antes: RetoPeliculas completado en su totalidad (valgrind 0 fugas / 0 errores).
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
