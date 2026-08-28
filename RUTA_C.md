@@ -1148,6 +1148,42 @@ Solución:
 lista[0] = crearEvento(lista[0]);   // guarda el resultado
 ```
 
+### Truncado silencioso + basura por tipo de retorno `int` devolviendo `float` (RetoPeliculas `valorTotal`)
+
+Error:
+
+```c
+int valorTotal(Pelicula *lista, int cantidad){
+    float total = 0;
+    for(int i=0; i<cantidad;i++){
+        total += lista[i].precio;   // total es float
+    }
+    return total;                    // retorna float en una función que declara int
+}
+// En main: printf("... %1.1f\n", valorTotal(...));  // %f espera float/double
+// Resultado con precios 9000.5: 27001.0 en vez de 27001.5
+// (o peor: basura aleatoria como 27001.0 con cálculo distinto)
+```
+
+Aprendizaje:
+
+- C permite convertir `float` a `int` de forma **implícita** (trunca). `-Wall -Wextra` NO avisa de esto (hace falta `-Wconversion`), porque para C es una conversión "legítima".
+- Peor aún: si la función retorna `int` pero el `printf` usa `%f`, hay un **desajuste de tipos** entre el valor pasado y el formato → comportamiento indefinido (basura aleatoria). El compilador tampoco lo detecta en el `printf`.
+- Un bug silencioso es más peligroso que un error de compilación: el error de compilación te bloquea (te obliga a arreglar); el bug silencioso compila, "funciona" y produce un resultado incorrecto sin avisar.
+- Regla general: el tipo de retorno debe **coincidir** con el tipo del valor que se devuelve (y con el formato de impresión). Sumas de `float` → función que retorna `float`.
+
+Solución:
+
+```c
+float valorTotal(Pelicula *lista, int cantidad){
+    float total = 0;
+    for(int i=0; i<cantidad;i++){
+        total += lista[i].precio;
+    }
+    return total;
+}
+```
+
 ### Extensión de signo al castear `char *` a `int` en printf
 
 Error:
@@ -1261,6 +1297,12 @@ for(int i=0; i<*cantidadProductos;i++){
 
 # 📝 CHECKPOINTS REALIZADOS
 
+## Checkpoint RetoPeliculas — CRUD dinámico con structs ✅ (Sesión 16)
+
+- **Reto:** completar el gestor de películas (struct + memoria dinámica): `buscarporId`, `actualizarDuracion`, `eliminarPelicula`, `valorTotal`, `liberarMemoria`.
+- **Interrogatorio superado:** por qué `free(*lista)` y no `free(lista)` con puntero doble; por qué `*lista=NULL` tras liberar (dangling pointer / doble free = comportamiento indefinido, demostrado en vivo con valgrind: "Invalid free()", exit 134); nivel de indirección correcto `(*lista)[i]`; decremento de cantidad una sola vez fuere del `for` interno; bug de conversión implícita `int`→`float` (¿por qué `-Wall -Wextra` no avisa?).
+- **Verificación práctica:** compilación limpia `gcc -Wall -Wextra`; el doble `free` se demuestra con/ sin `*lista=NULL`; casos límite de eliminación (primero/medio/último) correctos; `valorTotal` con precios decimales da el valor exacto; valgrind "All heap blocks were freed", 0 errores.
+
 ## Checkpoint V1 — Fundamentos ✅ (Sesión 5)
 
 - **Reto:** Etapa 1 del Gestor de Calificaciones (adaptación de la calculadora propuesta): menú do-while/switch, alta/listado/estadísticas, validación de opción y de nota (formato + rango), guards de lista vacía, malloc/free.
@@ -1294,6 +1336,24 @@ for(int i=0; i<*cantidadProductos;i++){
 ---
 
 # 📈 REGISTRO DE SESIONES
+
+## Sesión 16 — RetoPeliculas completado: liberar memoria + CRUD dinámico
+
+- **Reto:** terminar el ejercicio tipo parcial "Gestor de Películas" (`Pruebas Varias/Practicas OpenCode/RetoPeliculas.c`).
+- **Funciones completadas y validadas:** `buscarporId`, `actualizarDuracion`, `eliminarPelicula` (puntero doble + cierre de hueco), `valorTotal` (retorno `float`), `liberarMemoria` (`free` + `*lista=NULL`).
+- **Lógica (Reto 1 — `free`):** el `free(*lista)` va antes de `return`; se añadió `*lista = NULL` tras liberar. Verificado con valgrind: 2 allocs / 2 frees, "All heap blocks were freed", 0 errores.
+- **Doble `free` demostrado en vivo (experimento):** con `*lista = NULL` el doble `free` es `free(NULL)` → seguro. Sin él → `free(): double free detected in tcache 2`, exit 134, valgrind "Invalid free()". Confirmado que es **comportamiento indefinido** (en un intento previo hasta "pasó" con exit 0). ¿Por qué importa: el dangling pointer.
+- **Bugs corregidos por el estudiante en `eliminarPelicula`:**
+  - `lista[i]->id` con puntero doble → `(*lista)[i].id` (nivel de indirección correcto).
+  - `(*cantidad)--` y `break` DENTRO del `for(j)` interno → movidos FUERA, para que el decremento ocurra una sola vez siempre (el caso del último elemento no bajaba cantidad antes).
+  - `break` reubicado para cortar solo el `for(i)` externo.
+- **Bug nuevo aprendido — truncado silencioso:** `valorTotal` declaraba `int` pero retornaba `float` → con precios 9000.5 producía 27001.0 (y basura por desajuste `%f`/int). `-Wall -Wextra` NO avisa (hace falta `-Wconversion`). Corregido a `float valorTotal`. Verificado: 27001.5 correcto.
+- **Verificación completa:** `gcc -Wall -Wextra` limpio; casos límite de eliminación (primero / medio / último) probados y correctos; valgrind 0 fugas / 0 errores.
+- **Además:** corregida la etiqueta de impresión "Cantidad" → "Precio", y `main` ahora agrega 4 películas para probar con datos reales.
+
+Estado: ✅ RetoPeliculas completado (todas las funciones). Fase 7 sigue en progreso — pendiente: archivos binarios (`fread`/`fwrite`), proyecto inventario persistente. RetoPeliculas retomable para convertir en menú interactivo si se desea.
+
+---
 
 ## Sesión 1 — Reto AvanzaTech: lista sobre array
 
@@ -1619,15 +1679,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3, RetoPeliculas)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + retos de punteros/structs/memoria dinámica (CoderByte3, RetoPeliculas completados)
 
 **Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c
 
 **Próximo:** archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
 
-**Último concepto dominado:** Consistencia del orden de parámetros entre funciones que reciben punteros (evita corrupción de memoria), verificación de memoria con `valgrind` (invalid writes, leaks), `sizeof(struct)` en `malloc`/`realloc`, puntero doble `(*pp)[i]`. Antes: punteros dobles y niveles de indirección, `->` vs `.`, desplazamiento al eliminar (`j=i`), código muerto/inalcanzable, `strcpy` en structs, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
+**Último concepto dominado:** Bug silencioso de conversión implícita de tipos (retorno `int` con `float` trunca sin avisar `-Wall -Wextra`; desajuste con `%f` produce basura), `*lista=NULL` después de `free` (dangling pointer / doble free = comportamiento indefinido), cierre de hueco al eliminar con puntero doble `(*lista)[i]` + decremento de cantidad una sola vez fuera del `for` interno. Antes: consistencia del orden de parámetros, valgrind (invalid writes, leaks), `sizeof(struct)`, puntero doble `(*pp)[i]`, `->` vs `.`, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
 
-**Último ejercicio:** Ejercicio tipo parcial "Gestor de Películas" (`RetoPeliculas.c`): struct + `malloc`/`realloc` dinámico, `agregarPelicula`, `imprimirVideoteca` funcionando; corregido bug de `**lista = *tempLista` y orden de parámetros invertido (causaba `malloc(): corrupted top size`). Pendiente: `free` final, buscar/actualizar/eliminar/valor-total. Antes: reto CoderByte3 + `eliminarProducto`, ejercicios 1–10 PDF.
+**Último ejercicio:** RetoPeliculas completado en su totalidad (`RetoPeliculas.c`): `iniciarVideoteca`, `agregarPelicula`, `buscarporId`, `actualizarDuracion`, `eliminarPelicula`, `valorTotal`, `liberarMemoria`. Valgrind 0 fugas / 0 errores; casos límite de eliminación validados; bug de truncado `int`→`float` corregido. Antes: reto CoderByte3 + `eliminarProducto`, ejercicios 1–10 PDF.
 
 **Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
 
