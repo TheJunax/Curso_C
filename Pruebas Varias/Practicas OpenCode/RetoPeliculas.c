@@ -126,7 +126,6 @@ int main(){
     imprimirVideoteca(lista, cantidad);
 
     buscarporId(lista, cantidad, 2);
-    imprimirVideoteca(lista, cantidad);
 
     actualizarDuracion(lista, cantidad, 1, 146);
     imprimirVideoteca(lista, cantidad);
