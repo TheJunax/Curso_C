@@ -1326,6 +1326,32 @@ for(int i=0; i<*cantidadProductos;i++){
 }
 ```
 
+### Falta el `&` en `scanf` con puntero → segfault (RetoEstudiantes, opción eliminar)
+
+Error:
+
+```c
+case 4:
+    long eliminarId = 0;
+    printf("Escriba el id a Buscar: \n");
+    scanf("%ld", eliminarId);   // ❌ falta el &: pasa el VALOR como dirección
+    eliminarPorId(&lista, &cantidad, eliminarId);
+    break;
+// Warning del compilador: format '%ld' expects 'long int *', but argument has 'long int'
+```
+
+Aprendizaje:
+
+- `scanf` necesita la **dirección** (`&var`) para poder escribir el valor leído. Si pasas `var` (el valor), `scanf` interpreta ese número como una dirección de memoria y escribe ahí → segfault (o corrupción).
+- El warning `-Wformat` de `-Wall` **avisa** cuando el tipo del argumento no coincide: `long int` vs `long int *`. Ignorarlo es un bug latente.
+- En la misma sesión el `buscarPorId` (línea anterior) usaba `&buscarId` bien — el error fue de inconsistencia al copiar/pegar. Revisar todos los `scanf` tras pegar código.
+
+Solución:
+
+```c
+scanf("%ld", &eliminarId);   // ✅ con &
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1380,8 +1406,13 @@ for(int i=0; i<*cantidadProductos;i++){
   - **Bucle infinito con pipes/EOF** (tercera vez que aparece): se manejó el contrato completo de `scanf` — `EOF` → `break`, `0` → limpiar buffer (`while(getchar()!='\n')`) + `continue`, `1` → seguir.
   - **`(*cantidad)++` al eliminar** → corregido a `(*cantidad)--` (lista duplicada por no decrementar).
 - **Verificación:** compila limpio con `gcc -Wall -Wextra`; flujo feliz correcto (3 estudiantes, notas, aprobados); eliminación sin duplicados (primero/medio/últimos casos); **valgrind 0 fugas / 0 errores** (3 allocs / 3 frees); EOF/Ctrl+D termina limpio sin bucle.
-- **Observación:** los datos están hardcodeados en `main` (mismo ID, mismo nombre "Juan Pablo"), lo que no permite distinguir estudiantes en la salida — aceptado por decisión del estudiante (no se modifica).
-- **Además:** se actualizó `AGENTS.md` con el estilo de comunicación costeño/colombiano.
+- **Refinamiento posterior (misma sesión 18, trabajo del estudiante):**
+  - El `main` ahora pide **nombre e ID por teclado** con `fgets` (+ `strcspn` para quitar el `\n`), en vez de datos hardcodeados.
+  - `buscarPorId` y `eliminarPorId` ahora reciben el ID **real** capturado del usuario (antes usaban el ID fijo `10667173738`).
+  - **Bug corregido:** falta de `&` en `scanf("%ld", eliminarId)` (opción eliminar) → segfault. Detectado por warning `-Wformat` de `-Wall`. Corregido a `scanf("%ld", &eliminarId)`.
+  - **Pendiente opcional:** `nombre[20]` en el struct vs `agregarNombre[30]` en el main → riesgo de desbordamiento si el nombre supera 19 caracteres.
+- **Observación:** verificación final con flujo completo: agregar 2 estudiantes, buscar por ID, listar, eliminar por ID, aprobados — todo correcto.
+- **Además:** se actualizó `AGENTS.md` con el estilo de comunicación costeño/colombiano (y se cambió "parce" por "bro").
 
 Estado: ✅ Parcial "Gestor de Estudiantes" completado y validado (valgrind limpio). Fase 7 sigue en progreso — pendiente: archivos binarios (`fread`/`fwrite`), proyecto inventario persistente.
 
@@ -1751,9 +1782,9 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 **Próximo:** ⏳ **archivos binarios (`fread`/`fwrite`)** → proyecto inventario persistente → ejercicios 11–12 del PDF Pointer Arithmetic
 
-**Último concepto dominado:** CRUD dinámico completo con punteros dobles y structs (`RetoEstudiantes.c`) — validación de `realloc` con temporal, contrato completo de `scanf` (EOF/0/1) para evitar bucles infinitos con pipes, decremento de cantidad al eliminar (`--` no `++`), valgrind 0 fugas. Antes: booleanos en C (`stdbool.h`), truncado silencioso de tipos, `*lista=NULL` tras `free`, cierre de hueco al eliminar.
+**Último concepto dominado:** Entrada de texto con `fgets` + `strcspn` (quitar el `\n`) + captura de ID/usuario real para `buscarPorId`/`eliminarPorId`, y el bug de `scanf` sin `&` (warning `-Wformat` → segfault). Antes: CRUD dinámico con punteros dobles (`realloc` con temporal, contrato completo de `scanf` EOF/0/1, `--` al eliminar, valgrind 0 fugas).
 
-**Último ejercicio:** Parcial "Gestor de Estudiantes" completado y validado (valgrind limpio, sesión 18). Antes: ejemplo `Booleans.c` (Sesión 17).
+**Último ejercicio:** Parcial "Gestor de Estudiantes" completo con entrada por teclado (nombre/ID con `fgets`, búsqueda y eliminación por ID real) y verificación de flujo completo (agregar/buscar/listar/eliminar/aprobados). Pendiente opcional: tamaño de `nombre[20]` vs `agregarNombre[30]`.
 
 **Limitación conocida:** EOF en `scanf` seguía produciendo bucle infinito en pruebas canalizadas — **resuelto en Sesión 18** con el patrón EOF/0/1 (aún relacionado con el repaso pendiente de Fase 5 para entradas no numéricas en campos).
 

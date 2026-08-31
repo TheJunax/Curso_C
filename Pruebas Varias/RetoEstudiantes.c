@@ -74,7 +74,7 @@ void buscarPorId(Estudiante *lista, int cantidad, long id){
     }
   }
   if(encontro ==1){
-    printf("Estudiante NO encontrado");
+    printf("Estudiante NO encontrado\n");
     }
 }
 
@@ -166,10 +166,16 @@ int main(){
         mostrarEstudiantes(lista, cantidad);
         break;
       case 3:
-        buscarPorId(lista,cantidad,10667173738);
+        long buscarId=0;
+        printf("Escriba el id a Buscar: \n");
+        scanf("%ld", &buscarId);
+        buscarPorId(lista,cantidad,buscarId);
         break;
       case 4:
-        eliminarPorId(&lista, &cantidad, 10667173738);
+        long eliminarId=0;
+        printf("Escriba el id a Buscar: \n");
+        scanf("%ld", &eliminarId);
+        eliminarPorId(&lista, &cantidad, eliminarId);
         break;
       case 5:
         contarAprobados(lista, cantidad);
