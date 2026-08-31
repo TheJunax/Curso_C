@@ -151,7 +151,16 @@ int main(){
     }
     switch (opcion){
       case 1:
-        agregarEstudiante(&lista, &capacidad, &cantidad, 10667173738, "Juan Pablo");
+        char agregarNombre[30];
+        long agregarId= 0;
+        while(getchar() != '\n');
+        printf("Escriba el nombre del Estudiante: ");
+        fgets(agregarNombre, 30, stdin);
+        agregarNombre[strcspn(agregarNombre,"\n")] = '\0';
+        printf("\nEscriba el Id de %s: \n", agregarNombre);
+        scanf("%ld", &agregarId);
+        
+        agregarEstudiante(&lista, &capacidad, &cantidad,agregarId, agregarNombre);
         break;
       case 2:
         mostrarEstudiantes(lista, cantidad);
