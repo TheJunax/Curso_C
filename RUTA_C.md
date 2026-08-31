@@ -844,7 +844,7 @@ Podemos estudiar superficialmente temas de fases futuras si aparecen durante una
 
 Registrar aquí conceptos que necesiten reforzarse.
 
-- [ ] Manejo de EOF en `scanf` (entrada agotada / Ctrl+D): hoy produce bucle infinito en el gestor cuando se prueba con pipes. Aplazado conscientemente en Sesión 5 — retomar en Fase 5 con salida elegante.
+- [x] Manejo de EOF en `scanf` (entrada agotada / Ctrl+D): hoy produce bucle infinito en el gestor cuando se prueba con pipes. Aplazado conscientemente en Sesión 5 — **resuelto en Sesión 18** con el patrón `EOF → break`, `0 → limpiar+continue`, `1 → ok`. Aún queda como ejercicio: aplicar la misma validación de retorno a los `scanf("%f")` de las notas (entrada no numérica en campos).
 - [ ] 
 - [ ] 
 - [ ] 
@@ -1259,6 +1259,38 @@ for(int j = i; j < (*cantidadProductos)-1; j++){   // empieza en i, condición e
 }
 ```
 
+### `(*cantidad)++` en lugar de `--` al eliminar → lista duplicada (RetoEstudiantes)
+
+Error:
+
+```c
+void eliminarPorId(Estudiante **lista, int *cantidad, long id){
+    ...
+    for(int j=i; j<(*cantidad)-1; j++){  // desplazamiento correcto
+        (*lista)[j] = (*lista)[j+1];
+    }
+    printf("Estudiante Eliminado con exito\n");
+    (*cantidad)++;   // ❌ debe ser --, no ++
+    break;
+}
+// Resultado: tras eliminar, la lista no "se achica"; el último slot queda duplicado y sigue contando
+```
+
+Aprendizaje:
+
+- Al **eliminar** un elemento, la cantidad de elementos **disminuye**; al **agregar**, aumenta. El operador debe reflejar la operación.
+- Con `++` en lugar de `--`, el último slot duplicado se sigue contando como válido → la lista parece "no cambiar de tamaño" y muestra duplicados al listar.
+- Es el hermano gemelo del bug visto en RetoPeliculas (`--cantidad` fuera del bucle); aquí la dirección correcta del operador es la clave.
+- Regla general: revisar SIEMPRE si el `++`/`--` corresponde a la acción (sumar/restar elementos).
+
+Solución:
+
+```c
+(*cantidad)--;   // decretar la cantidad al eliminar
+```
+
+---
+
 ### Código muerto / inalcanzable: `i == cantidad` dentro de `for(i < cantidad)` (CoderByte3)
 
 Error:
@@ -1337,6 +1369,23 @@ for(int i=0; i<*cantidadProductos;i++){
 ---
 
 # 📈 REGISTRO DE SESIONES
+
+## Sesión 18 — Parcial "Gestor de Estudiantes" completado ✅ (CRUD dinámico + punteros dobles)
+
+- **Reto resuelto completo:** `Pruebas Varias/RetoEstudiantes.c` (CRUD de `Estudiante` con struct + memoria dinámica: `inicializar`, `agregar`, `mostrar`, `buscarPorId`, `eliminarPorId`, `contarAprobados`, `liberarLista`).
+- **Bugs corregidos de forma guiada:**
+  - Validación de `realloc` checaba `*lista` en vez del temporal `tempLista`.
+  - Off-by-one en el desplazamiento de `eliminarPorId` → `j < (*cantidad)-1`.
+  - `contarAprobados` reescrito: array local `posAprobados`/`promedio` sin inicializar; se eliminó el `while(posAprobados[ind]!=0)` (leía basura + no incrementaba `ind`) en favor de un `for(int i=0; i<ind; i++)`; se agregó `promedio[i]=0` antes de sumar; se imprime `lista[posAprobados[i]]` y no `lista[i]`.
+  - **Bucle infinito con pipes/EOF** (tercera vez que aparece): se manejó el contrato completo de `scanf` — `EOF` → `break`, `0` → limpiar buffer (`while(getchar()!='\n')`) + `continue`, `1` → seguir.
+  - **`(*cantidad)++` al eliminar** → corregido a `(*cantidad)--` (lista duplicada por no decrementar).
+- **Verificación:** compila limpio con `gcc -Wall -Wextra`; flujo feliz correcto (3 estudiantes, notas, aprobados); eliminación sin duplicados (primero/medio/últimos casos); **valgrind 0 fugas / 0 errores** (3 allocs / 3 frees); EOF/Ctrl+D termina limpio sin bucle.
+- **Observación:** los datos están hardcodeados en `main` (mismo ID, mismo nombre "Juan Pablo"), lo que no permite distinguir estudiantes en la salida — aceptado por decisión del estudiante (no se modifica).
+- **Además:** se actualizó `AGENTS.md` con el estilo de comunicación costeño/colombiano.
+
+Estado: ✅ Parcial "Gestor de Estudiantes" completado y validado (valgrind limpio). Fase 7 sigue en progreso — pendiente: archivos binarios (`fread`/`fwrite`), proyecto inventario persistente.
+
+---
 
 ## Sesión 17 — Booleanos en C (`stdbool.h`) + diseño de Parcial Gestor de Estudiantes
 
@@ -1696,16 +1745,16 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso) + Parcial Gestor de Estudiantes asignado (CRUD + punteros dobles)
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Parcial Gestor de Estudiantes **completado** ✅.
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c + Booleans.c
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c + Booleans.c + **RetoEstudiantes.c**
 
-**Próximo:** ⏳ **implementar el Parcial "Gestor de Estudiantes"** (CRUD dinámico con punteros dobles — asignado en Sesión 17), luego archivos binarios (`fread`/`fwrite`) → proyecto inventario persistente → ejercicios 11–12 del PDF
+**Próximo:** ⏳ **archivos binarios (`fread`/`fwrite`)** → proyecto inventario persistente → ejercicios 11–12 del PDF Pointer Arithmetic
 
-**Último concepto dominado:** Booleanos en C (`stdbool.h`: `bool`/`true`/`false`), aunque el estudiante optó por **banderas `int`** (estilo clásico 0/1) para sus programas. Antes: bug silencioso de conversión implícita de tipos, `*lista=NULL` después de `free` (dangling pointer / doble free = indefinido), cierre de hueco al eliminar con puntero doble `(*lista)[i]`, consistencia del orden de parámetros, valgrind, `sizeof(struct)`, puntero doble `(*pp)[i]`, `->` vs `.`, endianness/padding, `fgets`/`fputs`, typedef, arrays de structs, memoria dinámica, punteros, arrays, strings, fundamentos.
+**Último concepto dominado:** CRUD dinámico completo con punteros dobles y structs (`RetoEstudiantes.c`) — validación de `realloc` con temporal, contrato completo de `scanf` (EOF/0/1) para evitar bucles infinitos con pipes, decremento de cantidad al eliminar (`--` no `++`), valgrind 0 fugas. Antes: booleanos en C (`stdbool.h`), truncado silencioso de tipos, `*lista=NULL` tras `free`, cierre de hueco al eliminar.
 
-**Último ejercicio:** Ejemplo de booleanos `Booleans.c` (Sesión 17, compilado y verificado). Parcial "Gestor de Estudiantes" **asignado y pendiente de implementación**. Antes: RetoPeliculas completado en su totalidad (valgrind 0 fugas / 0 errores).
+**Último ejercicio:** Parcial "Gestor de Estudiantes" completado y validado (valgrind limpio, sesión 18). Antes: ejemplo `Booleans.c` (Sesión 17).
 
-**Limitación conocida:** EOF en `scanf` produce bucle infinito en pruebas canalizadas — aplazada conscientemente, retomar en Fase 5 (ver 🔁 REPASOS).
+**Limitación conocida:** EOF en `scanf` seguía produciendo bucle infinito en pruebas canalizadas — **resuelto en Sesión 18** con el patrón EOF/0/1 (aún relacionado con el repaso pendiente de Fase 5 para entradas no numéricas en campos).
 
 **Fases completadas:** Fase 1 ✅ (Sesión 5), Fase 2 ✅ (Sesión 7), Fase 3 ✅ (Sesión 7), Fase 4 ✅ (Sesión 8), Fase 5 ✅ (Sesión 9).
