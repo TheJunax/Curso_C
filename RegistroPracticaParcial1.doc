@@ -1,0 +1,39 @@
+﻿<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><title>Simulacro</title></head>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#222}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:4px 8px;text-align:left;font-size:10pt}th{background:#f0f0f0}</style>
+<body>
+<h2>Simulacro — 2026-08-31 (Simulacro estándar, 8 min)</h2>
+<p><b>Nota final:</b> 96/100</p>
+<h3>MCQ — Registro de preguntas</h3>
+<tr><th>#</th><th>Pregunta (resumen)</th><th>Tu respuesta</th><th>Correcta</th><th>¿Acertaste?</th></tr>
+<tr><td>1</td><td>Si declaro int a = 3; dentro de una función, ¿dónde existe esa variable?</td><td>B</td><td>B</td><td>Sí</td></tr>
+<tr><td>2</td><td>En la arquitectura de Von Neumann, los datos y las instrucciones…</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>3</td><td>¿Con qué flag se compilan hilos POSIX en C?</td><td>A</td><td>C</td><td>No</td></tr>
+<tr><td>4</td><td>¿Qué es el TLB?</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>5</td><td>La predicción de salto (branch prediction) busca…</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>6</td><td>¿Para qué se usa FAT32 con tanta frecuencia?</td><td>A</td><td>A</td><td>Sí</td></tr>
+<tr><td>7</td><td>¿Qué imprime printf(&quot;%d&quot;, 10/3)?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>8</td><td>¿Puede Round Robin producir starvation (inanición)?</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>9</td><td>¿Por qué if, while y for en C no crean hilos?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>10</td><td>¿Qué hace la MMU (Unidad de Manejo de Memoria)?</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>11</td><td>Dado Producto p;, ¿cómo se accede al campo precio?</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>12</td><td>¿Qué requisito debe cumplir el destino antes de strcat(destino, origen)?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>13</td><td>¿Para qué sirve wait() en el proceso padre?</td><td>A</td><td>A</td><td>Sí</td></tr>
+<tr><td>14</td><td>¿Por qué scanf(&quot;%d&quot;, &amp;x) usa &amp; y scanf(&quot;%s&quot;, s) no?</td><td>B</td><td>B</td><td>Sí</td></tr>
+<tr><td>15</td><td>¿Cuáles son los dos roles clásicos del sistema operativo?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>16</td><td>¿Por qué las líneas entre CISC y RISC se han difuminado?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>17</td><td>¿Cuál es el tipo de dato correcto para almacenar la edad de una persona?</td><td>A</td><td>A</td><td>Sí</td></tr>
+<tr><td>18</td><td>¿Qué puede ocurrir si llamás free(ptr) dos veces sobre el mismo puntero?</td><td>A</td><td>A</td><td>Sí</td></tr>
+<tr><td>19</td><td>En la PRIMERA llamada a agregarProducto(...) (con inv=NULL, n=0, cap=0), ¿qué su…</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>20</td><td>El error clásico del simulacro real fue escribir (*inv)[i].cantidad = *cantidad;…</td><td>C</td><td>C</td><td>Sí</td></tr>
+<tr><td>21</td><td>En actualizarCantidad, escribir inv[i].cantidad = nuevaCant modifica al producto…</td><td>A</td><td>A</td><td>Sí</td></tr>
+<tr><td>22</td><td>¿Qué hace liberarInventario?</td><td>B</td><td>B</td><td>Sí</td></tr>
+<tr><td>23</td><td>¿Por qué agregarProducto recibe el arreglo como Producto **inv?</td><td>D</td><td>D</td><td>Sí</td></tr>
+<tr><td>24</td><td>¿Qué imprime la salida del programa? (ver main)</td><td>D</td><td>D</td><td>Sí</td></tr>
+<h3>Desglose por bloque</h3>
+<tr><th>Bloque</th><th>Obtenido</th><th>Nota</th></tr>
+<tr><td>MCQ</td><td>17 / 18</td><td>94%</td></tr>
+<tr><td>Código C</td><td>6 / 6</td><td>100%</td></tr>
+<h3>Top debilidades</h3>
+<li>Hilos (1)</li>
+</body></html>

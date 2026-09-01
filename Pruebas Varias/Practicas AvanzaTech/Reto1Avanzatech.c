@@ -62,7 +62,7 @@ int main(){
     arreglo[5] = 60;
     arreglo[6] = 70;
 
-    printf("Arreglo después de cambiar el tamaño: ");
+    printf("Arreglo despues de cambiar el tamaño: ");
     printArray(arreglo, tamaño);
     printf("\n");
 

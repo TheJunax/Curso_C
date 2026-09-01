@@ -1354,6 +1354,37 @@ scanf("%ld", &eliminarId);   // ✅ con &
 
 ---
 
+### Índice del bucle: `persona[cantidad]` en vez de `persona[i]` (Parcial Gym, `mostarMiembros`)
+
+Error:
+
+```c
+for(int i=0; i<cantidad; i++){
+    long cedula = persona[cantidad].cedula;   // cantidad NO cambia en el bucle
+    strcpy(nombre, persona[cantidad].nombre); // siempre el mismo elemento
+    // printf con estos datos...
+}
+```
+
+Aprendizaje:
+
+- Dentro de un bucle que itera con `i`, el único índice que avanza es `i`. `cantidad` es un valor **fijo** durante toda la ejecución del bucle.
+- `persona[cantidad]` lee **una posición fuera del rango válido** (0..cantidad-1) → comportamiento indefinido, y de paso repite el mismo elemento en cada vuelta (si "funciona" a veces es por suerte: lee basura del vecino).
+- Es el mismo espíritu del off-by-one de `deleteAtIndex`: conocer los límites del array antes de indexar.
+- Regla general: si el bucle se recorre con `i`, el acceso al array va con `i`. Cualquier otro índice "constante" dentro del bucle es sospechoso de copiar/pegar.
+
+Solución:
+
+```c
+for(int i=0; i<cantidad; i++){
+    long cedula = persona[i].cedula;
+    strcpy(nombre, persona[i].nombre);
+    // printf con los datos de persona[i]
+}
+```
+
+---
+
 # 📝 CHECKPOINTS REALIZADOS
 
 ## Checkpoint RetoPeliculas — CRUD dinámico con structs ✅ (Sesión 16)
@@ -1396,7 +1427,20 @@ scanf("%ld", &eliminarId);   // ✅ con &
 
 # 📈 REGISTRO DE SESIONES
 
-## Sesión 18 — Parcial "Gestor de Estudiantes" completado ✅ (CRUD dinámico + punteros dobles)
+## Sesión 19 — Parcial "Gestor de Membresías Gym": Etapa 1 (modularización + alta + listado)
+
+- **Nuevo parcial integrador** acordado: **"Gestor de Membresías Gym"** — CRUD dinámico de afiliados (cédula única, nombre, plan, precio, meses pagados), SIN archivos (se descartó `fread`/`fwrite` y el archivo `.txt` por petición del estudiante), en 3 módulos: `main.c` (menú) + `gym.c` (implementaciones) + `gym.h` (contract del struct + prototipos).
+- **Archivos creados por el estudiante:** `Pruebas Varias/PracticaArchivos/gym.h`, `gym.c`, `main.c`.
+  - `gym.h`: include guards + struct `Gym` + 7 prototipos (el "contrato").
+  - `gym.c`: `inicializarGym` (`malloc` + chequeo `NULL` ✅), `agregarMiembro` (`realloc` con temporal + NULL + actualiza `*capacidad`, patrón V5 ✅), `mostarMiembros` (typo en el nombre), `liberarGym` (`free` + `*persona=NULL` + contadores a 0, anti-dangling ✅).
+  - `main.c`: flujo mínimo con un miembro hardcodeado (Messi Hernandez, plan Basico, 80000, 1 mes) — menú interactivo pendiente.
+- **Concepto sellado:** la `struct` va en el `.h` porque TANTOS `main.c` como `gym.c` la necesitan; el `.h` es el único puente entre ambos (cada `.c` compila separado y solo se unen en linking). El `.h` = menú del restaurante; la struct es pública (contrato), no privada de la cocina.
+- **Bug cazado por el estudiante (casi sin ayuda):** en `mostarMiembros` se leía `persona[cantidad]` en vez de `persona[i]` — `cantidad` no cambia en el bucle → leía SIEMPRE el mismo elemento y fuera del rango válido (0..cantidad-1), comportamiento indefinido. Corregido a `persona[i]` en las 5 lecturas + añadió `\n` al `printf`. Registrado en 🐛.
+- **PENDIENTE (sin verificar):** no se compiló ni ejecutó (elección del estudiante en clase). Faltan: `buscarMiembro`, `eliminarMiembro` (desplazamiento + `--`), `Estadisticas`, menú interactivo do-while/switch, validaciones de entrada (contrato `scanf` 1/0/EOF, buffer limpio), cédulas sin duplicar, guardas de lista vacía, casos límite de eliminación, compilar limpio `gcc -Wall -Wextra -g` y valgrind 0 fugas.
+
+Estado: 🟢 Fase 7 en progreso (archivos binarios descartados por el estudiante; solo texto ya cubierto). Parcial Gym en **Etapa 1** (estructura de módulos + alta + listado escritos, bug de listado corregido). Próxima sesión: completar buscar/eliminar/estadísticas + menú + validar con `-Wall -Wextra` y valgrind.
+
+---
 
 - **Reto resuelto completo:** `Pruebas Varias/RetoEstudiantes.c` (CRUD de `Estudiante` con struct + memoria dinámica: `inicializar`, `agregar`, `mostrar`, `buscarPorId`, `eliminarPorId`, `contarAprobados`, `liberarLista`).
 - **Bugs corregidos de forma guiada:**
@@ -1776,15 +1820,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Parcial Gestor de Estudiantes **completado** ✅.
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Parcial "Gestor de Membresías Gym" en Etapa 1 (módulos `.h`/`.c` + alta + listado escritos).
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + Structs.c + StructsAnidados.c + RetoArchivos.c + endian_exercises.c + CoderByte3.c + RetoCoderByte.c + RetoPeliculas.c + Booleans.c + **RetoEstudiantes.c**
+**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + RetoPeliculas.c + RetoEstudiantes.c + Booleans.c + **Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c)**
 
-**Próximo:** ⏳ **archivos binarios (`fread`/`fwrite`)** → proyecto inventario persistente → ejercicios 11–12 del PDF Pointer Arithmetic
+**Próximo:** ⏳ completar Parcial Gym — `buscarMiembro`, `eliminarMiembro`, `Estadisticas`, menú interactivo, validaciones de entrada, cédulas sin duplicar, guardas de lista vacía, casos límite de eliminación → compilar limpio `gcc -Wall -Wextra -g` y valgrind 0 fugas.
 
-**Último concepto dominado:** Entrada de texto con `fgets` + `strcspn` (quitar el `\n`) + captura de ID/usuario real para `buscarPorId`/`eliminarPorId`, y el bug de `scanf` sin `&` (warning `-Wformat` → segfault). Antes: CRUD dinámico con punteros dobles (`realloc` con temporal, contrato completo de `scanf` EOF/0/1, `--` al eliminar, valgrind 0 fugas).
+**Último concepto dominado:** la `struct` vive en el `.h` (el contrato compartido entre módulos, no en un `.c` privado) + bug de índice del bucle: dentro de `for(i...)`, el array se accede con `persona[i]`, jamás con `persona[cantidad]` (índice fijo = lectura fuera de rango + elemento repetido). Antes: CRUD dinámico con punteros dobles y contrato completo de `scanf` (EOF/0/1).
 
-**Último ejercicio:** Parcial "Gestor de Estudiantes" completo con entrada por teclado (nombre/ID con `fgets`, búsqueda y eliminación por ID real) y verificación de flujo completo (agregar/buscar/listar/eliminar/aprobados). Pendiente opcional: tamaño de `nombre[20]` vs `agregarNombre[30]`.
+**Último ejercicio:** Etapa 1 del Parcial Gym — `gym.h` con include guards + 7 prototipos, `gym.c` con `inicializarGym`/`agregarMiembro`/`mostarMiembros`/`liberarGym`, `main.c` con un miembro hardcodeado. Bug de `mostarMiembros` corregido (`persona[i]`). Sin compilar ni ejecutar aún (pendiente de verificación).
 
 **Limitación conocida:** EOF en `scanf` seguía produciendo bucle infinito en pruebas canalizadas — **resuelto en Sesión 18** con el patrón EOF/0/1 (aún relacionado con el repaso pendiente de Fase 5 para entradas no numéricas en campos).
 
