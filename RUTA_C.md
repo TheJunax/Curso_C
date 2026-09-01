@@ -671,7 +671,7 @@ Guardar y recuperar información desde archivos.
 - [x] `fscanf`
 - [x] `fgets`
 - [x] `fputs`
-- [ ] `fread`
+- [x] `fread`
 - [ ] `fwrite`
 - [x] Archivos de texto
 - [ ] Archivos binarios
@@ -1385,6 +1385,45 @@ for(int i=0; i<cantidad; i++){
 
 ---
 
+### Struct que se desvía del layout del archivo binario: `fread` masivo con tamaño incorrecto (Taller 1)
+
+Error:
+
+```c
+typedef struct {
+    int id;               // 4
+    unsigned char flags;  // 1
+    char genero[10];      // 10 ← campo extra en la struct
+    char nombre[23];      // 23
+    int edad;             // 4
+} Estudiante;             // sizeof = 44 (el archivo usa 32 por estudiante)
+// Primer intento "ahorrador": unsigned char genero (1 byte) → sizeof = 36 (padding antes del int edad)
+```
+
+Aprendizaje:
+
+- La struct que lee un binario debe ser un **espejo EXACTO** del registro del archivo: el archivo se genera con un molde fijo (4+1+23+4 = 32 B) y `fread` avanza `sizeof(struct) × cantidad` bytes, aunque las fotos reales midan menos → desfase acumulado que corrompe los últimos registros (y se muerde la siguiente sección del archivo).
+- Agregar CUALQUIER campo rompe el layout; incluso 1 byte genera padding: `id(4)+flags(1)+genero(1)+nombre(23)` termina en 28, y el `int edad` exige offset múltiplo de 4 → 3 bytes fantasma → 36.
+- Los datos derivados (género desde flags) se **calculan al vuelo** al imprimir, no se almacenan en la struct.
+- `strcpy` en un campo de 1 byte = desbordamiento de heap (escribe 9 bytes donde hay 1) → comportamiento indefinido.
+- Regla: struct de lectura = formato del archivo, sin campos extra; verificar siempre `sizeof(struct) == layout` (aquí: `printf("%zu", sizeof(Estudiante))` → 32).
+
+Solución:
+
+```c
+typedef struct {
+    int id;
+    unsigned char flags;
+    char nombre[23];
+    int edad;   // offset 28 = múltiplo de 4 → sin padding → sizeof 32
+} Estudiante;
+
+// En el printf, decodificar al vuelo:
+const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
+```
+
+---
+
 # 📝 CHECKPOINTS REALIZADOS
 
 ## Checkpoint RetoPeliculas — CRUD dinámico con structs ✅ (Sesión 16)
@@ -1426,6 +1465,24 @@ for(int i=0; i<cantidad; i++){
 ---
 
 # 📈 REGISTRO DE SESIONES
+
+## Sesión 20 — Taller universitario "Archivos binarios" (Tarea 1 completada + Tarea 2 en curso)
+
+- **Contexto:** taller de la universidad en `Taller 1/`: `sample_data.bin` (226.974 B) con 1000 estudiantes (32 B c/u), 50 cursos (40 B), 12060 matrículas (16 B). Enunciado en `Ruta 1 - Taller.pdf` (3 tareas: rango de edad 20%, promedio por curso 35%, estadísticas de matrícula 45%).
+- **Tarea 1 COMPLETADA y VALIDADA** en `Taller 1/Juan_Pineda_tarea1.c`: filtro de estudiantes por rango de edad vía `argc`/`argv`, validación de magic byte a byte, `leerEncabezado`/`leerLista`/`mostrarPorRango` modulares, memoria con validación NULL + free.
+- **Análisis del binario con `xxd`:** estructura confirmada (header 14 B: magic 2 + 3 conteos uint32 LE; estudiante 32 B: id 4, flags 1, nombre 23, edad 4). Flags: bit 7 = femenino (0x80), bit 6 = posgrado (0x40).
+- **Lección endianness aplicada:** el magic `0xaaae` se lee como `unsigned char magic[2]` y se compara `magic[0]==0xAA && magic[1]==0xAE`, porque leerlo como `unsigned short` en little-endian da `0xAEAA`.
+- **Bug grande de la sesión (🐛 registrado):** campos extra en la struct de lectura → sizeof 44 y 36 en vez de 32 → desfase acumulado en `fread` masivo. Solución: struct espejo exacto de 32 B + género calculado al vuelo con `(flags & 128) ? "Femenino" : "Masculino"`.
+- **Bug intermedio:** `strcpy("Femenino", ...)` en campo `unsigned char` de 1 byte = desbordamiento de heap; eliminada la función que escribía en el struct.
+- **Warnings corregidos:** `-Wsign-compare` (`for(unsigned int i...)`), `printf` con 4 argumentos y solo 3 `%` (faltaba el `%s` del género).
+- **Discusión conceptual con el estudiante:** "no hay límite de bytes" (su profesor) vs struct espejo — aclarado: el límite existe SOLO para `fread` masivo, porque avanza `sizeof × cantidad`; leyendo campo por campo no hay límite. El estudiante eligió mantener el `fread` masivo con struct de 32 (ya validado).
+- **Verificación Tarea 1:** `gcc -Wall -Wextra -g` CERO warnings, `sizeof(Estudiante)=32`, valgrind 0 leaks/0 errores (4 allocs/4 frees), casos 1–3 correctos (Uso sin args, rango 18–22, rango 15–20) + género correcto (ID 2 Femenino contra hexdump).
+- **Tarea 2 EN CURSO** (`Taller 1/Juan_Pineda_tarea2.c`): structs `Curso` (40 B) y `Matricula` (16 B) + `leerCurso`/`leerMatricula` (patrón espejo) listos. **PENDIENTE:** función `promedioEdadCurso` (recorrer matrículas por idCurso → buscar edad del estudiante → suma/divide) y reescribir `main` (argumento curso + llamadas en orden estudiantes→cursos→matrículas + frees). Tarea 3 sin iniciar.
+- **Pendiente heredado:** Parcial Gym (Sesión 19) sigue en Etapa 1 — buscar/eliminar/estadísticas/menú/validaciones pendientes de verificar.
+
+Estado: 🟢 Taller 1 — Tarea 1 ✅ (validada), Tarea 2 en progreso (esqueleto listo, falta promedio + main). Fase 7 del curso: `fread` ✅ aprendido por la práctica; falta `fwrite` y proyecto de inventario persistente.
+
+---
 
 ## Sesión 19 — Parcial "Gestor de Membresías Gym": Etapa 1 (modularización + alta + listado)
 
@@ -1820,15 +1877,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Parcial "Gestor de Membresías Gym" en Etapa 1 (módulos `.h`/`.c` + alta + listado escritos).
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tarea 1 (rango de edad) ✅ completada y validada; Tarea 2 (promedio de edad por curso) en curso — esqueleto listo, falta lógica del promedio + main.
 
-**Proyecto activo:** 📦 Gestor de Calificaciones (validado V1–V5) + RetoPeliculas.c + RetoEstudiantes.c + Booleans.c + **Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c)**
+**Proyecto activo:** 🎓 Taller 1 (`Taller 1/`: `sample_data.bin` + `Juan_Pineda_tarea1.c` ✅ + `Juan_Pineda_tarea2.c` 🟢) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c, Etapa 1 sin verificar)
 
-**Próximo:** ⏳ completar Parcial Gym — `buscarMiembro`, `eliminarMiembro`, `Estadisticas`, menú interactivo, validaciones de entrada, cédulas sin duplicar, guardas de lista vacía, casos límite de eliminación → compilar limpio `gcc -Wall -Wextra -g` y valgrind 0 fugas.
+**Próximo:** ⏳ terminar Tarea 2 — función `promedioEdadCurso` (recorrer matrículas filtrando por `idCurso`, buscar la edad del estudiante en la lista, sumar y dividir) + reescribir `main` (argumento del curso, llamadas en orden estudiantes→cursos→matrículas, frees de las 3 listas, división decimal). Después: Tarea 3 (estadísticas de matrícula por semestre, género y posgrado — 6 columnas, estudiantes distintos).
 
-**Último concepto dominado:** la `struct` vive en el `.h` (el contrato compartido entre módulos, no en un `.c` privado) + bug de índice del bucle: dentro de `for(i...)`, el array se accede con `persona[i]`, jamás con `persona[cantidad]` (índice fijo = lectura fuera de rango + elemento repetido). Antes: CRUD dinámico con punteros dobles y contrato completo de `scanf` (EOF/0/1).
+**Último concepto dominado:** la struct que lee un binario debe ser un **espejo EXACTO** del registro del archivo (`fread` avanza `sizeof × cantidad`); los campos derivados (género) se calculan al vuelo con bitwise `(flags & 128)`. Verificado: sizeof 32, valgrind limpio, cero warnings. Antes: `fread` masivo, endianness del magic (`0xaaae` byte a byte), struct espejo.
 
-**Último ejercicio:** Etapa 1 del Parcial Gym — `gym.h` con include guards + 7 prototipos, `gym.c` con `inicializarGym`/`agregarMiembro`/`mostarMiembros`/`liberarGym`, `main.c` con un miembro hardcodeado. Bug de `mostarMiembros` corregido (`persona[i]`). Sin compilar ni ejecutar aún (pendiente de verificación).
+**Último ejercicio:** Tarea 1 del Taller completada — `Juan_Pineda_tarea1.c` valida magic, lee header + 1000 estudiantes, filtra por rango vía `argc`/`argv` e imprime nombre/edad/género. Tarea 2: structs `Curso` (40 B) y `Matricula` (16 B) + `leerCurso`/`leerMatricula` escritos.
 
 **Limitación conocida:** EOF en `scanf` seguía produciendo bucle infinito en pruebas canalizadas — **resuelto en Sesión 18** con el patrón EOF/0/1 (aún relacionado con el repaso pendiente de Fase 5 para entradas no numéricas en campos).
 
