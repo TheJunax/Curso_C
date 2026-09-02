@@ -122,28 +122,33 @@ void crearTabla(Estudiante *listaE, Matricula *listaM,
 
     int idContado[1001];    // ids van 1..1000, usamos idContado[id]
 
-    printf("Año\tSem\tH-Pre\tM-Pre\tH-Pos\tM-Pos\n");
+    // Descubrir los valores mínimo y máximo de año y semestre desde las matrículas
+    int minAño = listaM[0].año, maxAño = listaM[0].año;
+    int minSem = listaM[0].semestre, maxSem = listaM[0].semestre;
+    for(unsigned int i = 1; i < cantidadMatriculas; i++){
+        if(listaM[i].año < minAño) minAño = listaM[i].año;
+        if(listaM[i].año > maxAño) maxAño = listaM[i].año;
+        if(listaM[i].semestre < minSem) minSem = listaM[i].semestre;
+        if(listaM[i].semestre > maxSem) maxSem = listaM[i].semestre;
+    }
 
-    for(int año = 2020; año <= 2029; año++){
-        for(int sem = 1; sem <= 4; sem++){
+    printf("Año Semestre HombrePre MujerPre HombrePos MujerPos\n");
 
-            // 1) reiniciar idContado
+    for(int año = minAño; año <= maxAño; año++){
+        for(int sem = minSem; sem <= maxSem; sem++){
+
             for(int i = 0; i < 1001; i++) idContado[i] = 0;
-            // 2) contadores de las 4 categorías
             int hPre = 0, mPre = 0, hPos = 0, mPos = 0;
-            // 3) recorrer matrículas y filtrar por (año, sem)
             for(unsigned int m = 0; m < cantidadMatriculas; m++){
                 if(listaM[m].año == año && listaM[m].semestre == sem){
                     int id = listaM[m].idEstudiante;
                     if(idContado[id] == 0){
-                        //   - buscar el estudiante en listaE por su id
+
                     for (unsigned int e = 0; e < cantidadEstudiantes; e++) {
                         if (listaE[e].id == id) {
-                    //   - leer flags: femenino = flags & 128, posgrado = flags & 64
                         int esFemenino = (listaE[e].flags & 128) != 0;
                         int esPosgrado = (listaE[e].flags & 64) != 0;
 
-        //   - incrementar el contador correspondiente
                             if (esPosgrado) {
                                 if (esFemenino) {
                                     mPos++;
@@ -158,7 +163,6 @@ void crearTabla(Estudiante *listaE, Matricula *listaM,
                                 }
                             }
 
-        //   - idContado[id] = 1;
                             idContado[id] = 1;
                             break; // Detiene la búsqueda una vez hallado el estudiante
                         }
@@ -167,7 +171,7 @@ void crearTabla(Estudiante *listaE, Matricula *listaM,
                 }
             }
 
-            printf("%d\t%d\t%d\t%d\t%d\t%d\n", año, sem, hPre, mPre, hPos, mPos);
+            printf("%d\t%d  \t%d     \t%d         %d    \t%d\n", año, sem, hPre, mPre, hPos, mPos);
         }
     }
 }

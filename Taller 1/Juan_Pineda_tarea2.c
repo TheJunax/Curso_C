@@ -118,17 +118,14 @@ Estudiante *leerLista(FILE *archivo, unsigned int cantidadEstudiantes){
 }
 
 void mostrarPorCurso(Estudiante *listaE,Curso *listaC, Matricula *listaM,unsigned int cantidadEstudiantes, unsigned int cantidadCursos, unsigned int cantidadMatriculas){
-    // BUCLE EXTERNO: recorrer TODOS los cursos
     for(unsigned int i=0; i<cantidadCursos; i++){
         int idCursoBuscado = listaC[i].id;
         int count=0;
         float promedio=0;
 
-        // BUCLE de matrículas: filtrar las de ESTE curso
         for(unsigned int j=0; j<cantidadMatriculas; j++){
             if(listaM[j].idCurso == idCursoBuscado){
                 int idEstudianteBuscado = listaM[j].idEstudiante;
-                // BUCLE anidado: buscar la edad del estudiante en listaE
                 for(unsigned int j=0; j<cantidadEstudiantes; j++){
                     if(listaE[j].id == idEstudianteBuscado){
                         promedio += listaE[j].edad;
@@ -140,7 +137,7 @@ void mostrarPorCurso(Estudiante *listaE,Curso *listaC, Matricula *listaM,unsigne
 
         if(count > 0){
             promedio /= count;
-            printf("%s: %.1f\n", listaC[i].nombre, promedio);
+            printf("Curso: %s  ||  Promedio De Edad: %.1f\n", listaC[i].nombre, promedio);
         }
     }
 }
