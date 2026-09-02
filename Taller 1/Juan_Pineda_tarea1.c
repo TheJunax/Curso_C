@@ -4,8 +4,7 @@
 
 typedef struct {
     int id;
-    unsigned char flags;
-    //int genero;
+    unsigned char flags;   
     char nombre[23];
     int edad;
 } Estudiante;

@@ -5,7 +5,6 @@
 typedef struct {
     int id;
     unsigned char flags;
-    //int genero;
     char nombre[23];
     int edad;
 } Estudiante;
