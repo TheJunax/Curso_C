@@ -117,33 +117,61 @@ Estudiante *leerLista(FILE *archivo, unsigned int cantidadEstudiantes){
     return lista;
 }
 
-void mostrarPorCurso(Estudiante *listaE,Curso *listaC, Matricula *listaM,unsigned int cantidadEstudiantes, unsigned int cantidadCursos, unsigned int cantidadMatriculas){
-    // BUCLE EXTERNO: recorrer TODOS los cursos
-    for(unsigned int i=0; i<cantidadCursos; i++){
-        int idCursoBuscado = listaC[i].id;
-        int count=0;
-        float promedio=0;
+void crearTabla(Estudiante *listaE, Matricula *listaM,
+                unsigned int cantidadEstudiantes, unsigned int cantidadMatriculas){
 
-        // BUCLE de matrículas: filtrar las de ESTE curso
-        for(unsigned int j=0; j<cantidadMatriculas; j++){
-            if(listaM[j].idCurso == idCursoBuscado){
-                int idEstudianteBuscado = listaM[j].idEstudiante;
-                // BUCLE anidado: buscar la edad del estudiante en listaE
-                for(unsigned int j=0; j<cantidadEstudiantes; j++){
-                    if(listaE[j].id == idEstudianteBuscado){
-                        promedio += listaE[j].edad;
-                        count++;
+    int idContado[1001];    // ids van 1..1000, usamos idContado[id]
+
+    printf("Año\tSem\tH-Pre\tM-Pre\tH-Pos\tM-Pos\n");
+
+    for(int año = 2020; año <= 2029; año++){
+        for(int sem = 1; sem <= 4; sem++){
+
+            // 1) reiniciar idContado
+            for(int i = 0; i < 1001; i++) idContado[i] = 0;
+            // 2) contadores de las 4 categorías
+            int hPre = 0, mPre = 0, hPos = 0, mPos = 0;
+            // 3) recorrer matrículas y filtrar por (año, sem)
+            for(unsigned int m = 0; m < cantidadMatriculas; m++){
+                if(listaM[m].año == año && listaM[m].semestre == sem){
+                    int id = listaM[m].idEstudiante;
+                    if(idContado[id] == 0){
+                        //   - buscar el estudiante en listaE por su id
+                    for (unsigned int e = 0; e < cantidadEstudiantes; e++) {
+                        if (listaE[e].id == id) {
+                    //   - leer flags: femenino = flags & 128, posgrado = flags & 64
+                        int esFemenino = (listaE[e].flags & 128) != 0;
+                        int esPosgrado = (listaE[e].flags & 64) != 0;
+
+        //   - incrementar el contador correspondiente
+                            if (esPosgrado) {
+                                if (esFemenino) {
+                                    mPos++;
+                                } else {
+                                    hPos++;
+                                }
+                            } else {
+                                if (esFemenino) {
+                                    mPre++;
+                                } else {
+                                    hPre++;
+                                }
+                            }
+
+        //   - idContado[id] = 1;
+                            idContado[id] = 1;
+                            break; // Detiene la búsqueda una vez hallado el estudiante
+                        }
+                    }
                     }
                 }
             }
-        }
 
-        if(count > 0){
-            promedio /= count;
-            printf("%s: %.1f\n", listaC[i].nombre, promedio);
+            printf("%d\t%d\t%d\t%d\t%d\t%d\n", año, sem, hPre, mPre, hPos, mPos);
         }
     }
 }
+
 
 int main(int argc, char *argv[]){
 
@@ -182,8 +210,8 @@ int main(int argc, char *argv[]){
         fclose(archivo);
         return 1;
     }
-    
-    mostrarPorCurso(listaE,listaC,listaM,cantidadEstudiantes,cantidadCursos,cantidadMatriculas);
+
+        crearTabla(listaE,listaM,cantidadEstudiantes,cantidadMatriculas);
 
 
     free(listaE);

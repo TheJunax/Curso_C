@@ -1466,6 +1466,41 @@ const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 21 — Taller 1: Tarea 2 COMPLETADA (promedio de edad por curso)
+
+- **Contexto:** se retomó `Taller 1/Juan_Pineda_tarea2.c` (Tarea 2 — promedio de edad). La Tarea 1 ya estaba ✅.
+- **Avance conceptual:** el problema era relacionar 3 listas independientes (estudiantes, cursos, matrículas). Se diseñó con **bucles anidados**: el de matrículas **afuera** (cada matrícula del curso = un estudiante a contar) y el de estudiantes **adentro** (buscar la edad por `id`). Cada matrícula se procesa "al vuelo" con acumulador + contador (sin `malloc` extra). El curso se pasa por `argv[2]`.
+- **Recorrido de bugs en sesión (guía socrática):**
+  1. `leerMatriculas` → `leerMatricula` (typo que rompía el linking).
+  2. `strcpy(argv[2], cursoABuscar)` **invertido** → `strcpy(cursoABuscar, argv[2])` (copiaba el vacío sobre el argumento).
+  3. `leerCurso(..., cantidadEstudiantes)` → `cantidadCursos`; igual para matrículas (cantidades equivocadas → fread de más).
+  4. Faltaban `free(listaC)` y `free(listaM)` (solo se liberaba `listaE`).
+  5. **Bug conceptual mayor (defecto de diseño):** usar el mismo índice `i` en las 3 listas (como si fueran paralelas) — DA `-nan` porque ningún `id` coincide en las posiciones. El `strcmp` también estaba invertido (`if(strcmp(...))` = distinto, no igual).
+  6. Intento de "array de IDs" con `int *idEstudianteBuscado` **sin `malloc`** → segfault (puntero a basura). Se reemplazó por la estructura anidada sin guardar nada.
+- **Resultados validados (v1 — un curso por argv[2]):**
+  - Biology 101 → Promedio 23.8, 240 matrículas. Linear Algebra → Promedio 23.7, 237.
+  - **Verificación independiente** (`/tmp/verificar_curso.c`): coincide (Total=240, Promedio=23.8). ✅
+- **CAMBIO de requisito (a petición del estudiante):** la Tarea 2 debe imprimir el promedio de **TODOS los cursos**, no de uno por argumento. Se reestructuró `mostrarPorCurso` con 3 bucles anidados (exterior recorre cursos → matrículas → estudiantes), se quitó el argumento del curso del `main` (`argc < 2`), y el formato es `"Nombre: promedio"` una línea por curso. Salida: 50 cursos, p.ej. `Reporte final validado: Biology 101: 23.8, Linear Algebra: 23.7`.
+- **Nota de rendimiento:** la estructura de 3 bucles anidados (50×12060×1000 ≈ 600M operaciones) tarda ~30s. Funciona y es correcta; optimizable con el truco del índice (id como offset, como en Tarea 3) pero se acordó dejarla así.
+- **Nota de C:** se usó `j` tanto para el bucle de matrículas como para el anidado de estudiantes (sombrado de variable) — compila limpio pero es anti-patrón; se comentó con el estudiante.
+- **Cerramos el Taller 1 completo:** valgrind 6 allocs / 6 frees, 0 fugas, 0 errores; compilación limpia `gcc -Wall -Wextra -g`. ✅
+- **Lección clave para Tarea 3:** en la verificación se notó que hay **estudiantes repetidos** en el mismo curso (ej: 'Jennifer Ruiz' 2 veces, 'Richard Bright' 2 veces) = un estudiante con varias matrículas en el mismo curso. La Tarea 3 exige contar estudiantes **distintos** (si matricula varias clases en el mismo semestre, cuenta 1 vez).
+- **Checkpoint aprobado (Tarea 2):** 1) por qué la versión anidada no necesita `malloc` (se acumula al vuelo, no se guarda) vs el array sin `malloc` (segfault); 2) por qué el bucle de matrículas va afuera (fuente de "quién está en el curso") y el de estudiantes adentro (buscar edad por id). Respuestas correctas. ✅
+
+## Tarea 3 COMPLETADA — Estadísticas de matrícula (45%)
+
+- **Archivo:** `Taller 1/Juan_Pineda_tarea3.c` (funciones de lectura + `crearTabla` + `main`).
+- **Reto:** tabla con 6 columnas (Año, Sem, H-Pre, M-Pre, H-Pos, M-Pos) contando estudiantes **distintos** por semestre, desglosados por sexo y tipo.
+- **Diseño:** `crearTabla(Estudiante*, Matricula*, ...)` con bucles anidados: barrer 10 años (2020→2029) × 4 semestres; por cada par reiniciar `idContado[1001]` a 0 y contadores; recorrer matrículas filtrando por (año, sem); si `idContado[id]==0` → buscar estudiante por id en `listaE`, leer flags (`&128` femenino, `&64` posgrado), incrementar el contador correcto (hPre/mPre/hPos/mPos) y marcar `idContado[id]=1`.
+- **Bug guiado:** inicialmente `crearTabla` recibía `listaC` y `cantidadCursos` sin usarlos → warnings `-Wunused-parameter`. Se eliminaron de la firma y la llamada → compilación limpia.
+- **Dato explorado con Python:** 1000 estudiantes (IDs 1..1000, 611 femeninos, 299 posgrado), 50 cursos, 12060 matrículas, pares (año=2020..2029, sem=1..4) → 40 filas. Un estudiante puede tener hasta 5 matrículas en el MISMO (año,sem) → justifica el contador de "distintos".
+- **Verificación:** tabla de 40 filas correcta. **Cruze independent con Python** fila por fila: 2020-1 (20,51,8,21), 2025-3 (15,26,9,14), 2020-4 (9,27,3,13), 2029-4 (17,17,8,7), 2023-2 (24,40,9,14) — TODAS coinciden con el programa C. ✅
+- **Tarea 2 modificada al final** (requisito del estudiante): promedio de TODOS los cursos (50 líneas `Nombre: promedio`) en vez de uno por argv. Valgrind 0 fugas/0 errores en ambas.
+
+Estado: ✅ Taller 1 COMPLETO — Tareas 1, 2 y 3 validadas. Fase 7 del curso: queda el proyecto de inventario persistente y `fwrite`; binarios ya cubiertos por `fread` en el Taller.
+
+---
+
 ## Sesión 20 — Taller universitario "Archivos binarios" (Tarea 1 completada + Tarea 2 en curso)
 
 - **Contexto:** taller de la universidad en `Taller 1/`: `sample_data.bin` (226.974 B) con 1000 estudiantes (32 B c/u), 50 cursos (40 B), 12060 matrículas (16 B). Enunciado en `Ruta 1 - Taller.pdf` (3 tareas: rango de edad 20%, promedio por curso 35%, estadísticas de matrícula 45%).
@@ -1877,15 +1912,15 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tarea 1 (rango de edad) ✅ completada y validada; Tarea 2 (promedio de edad por curso) en curso — esqueleto listo, falta lógica del promedio + main.
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado.
 
-**Proyecto activo:** 🎓 Taller 1 (`Taller 1/`: `sample_data.bin` + `Juan_Pineda_tarea1.c` ✅ + `Juan_Pineda_tarea2.c` 🟢) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c, Etapa 1 sin verificar)
+**Proyecto activo:** 🎓 Taller 1 COMPLETO (`Taller 1/`: `Juan_Pineda_tarea1.c` ✅ + `Juan_Pineda_tarea2.c` ✅ + `Juan_Pineda_tarea3.c` ✅) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c, Etapa 1 sin verificar)
 
-**Próximo:** ⏳ terminar Tarea 2 — función `promedioEdadCurso` (recorrer matrículas filtrando por `idCurso`, buscar la edad del estudiante en la lista, sumar y dividir) + reescribir `main` (argumento del curso, llamadas en orden estudiantes→cursos→matrículas, frees de las 3 listas, división decimal). Después: Tarea 3 (estadísticas de matrícula por semestre, género y posgrado — 6 columnas, estudiantes distintos).
+**Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite` (binarios ya cubiertos por `fread` en el Taller). Opcional: retomar Parcial Gym (Etapa 1 sin verificar) o optimizar Tarea 2 (hoy O(600M), ~30s, con el truco del índice quedaría O(1) por estudiante).
 
-**Último concepto dominado:** la struct que lee un binario debe ser un **espejo EXACTO** del registro del archivo (`fread` avanza `sizeof × cantidad`); los campos derivados (género) se calculan al vuelo con bitwise `(flags & 128)`. Verificado: sizeof 32, valgrind limpio, cero warnings. Antes: `fread` masivo, endianness del magic (`0xaaae` byte a byte), struct espejo.
+**Último concepto dominado:** contar estudiantes **DISTINTOS** usando el `id` como índice de un array marcador (`idContado[1001]`, reiniciado por semestre) + desglose por sexo/posgrado con bitwise (`flags & 128`, `flags & 64`). Aplicado en Tarea 3 (tabla de 40 filas × 6 columnas, verificada con Python). Antes: bucles anidados para relacionar 3 listas en Tarea 2.
 
-**Último ejercicio:** Tarea 1 del Taller completada — `Juan_Pineda_tarea1.c` valida magic, lee header + 1000 estudiantes, filtra por rango vía `argc`/`argv` e imprime nombre/edad/género. Tarea 2: structs `Curso` (40 B) y `Matricula` (16 B) + `leerCurso`/`leerMatricula` escritos.
+**Último ejercicio:** Taller 1 completo — Tarea 3 (`Juan_Pineda_tarea3.c`): tabla por año/semestre de estudiantes distintos por 4 categorías. Verificado fila por fila con script Python independiente (coincide en 2020-1, 2025-3, 2020-4, 2029-4, 2023-2). Tarea 2 modificada a "promedio de TODOS los cursos" (50 líneas, `Nombre: promedio`), validada. Ambos con valgrind 0 fugas/0 errores y compilación limpia `-Wall -Wextra`.
 
 **Limitación conocida:** EOF en `scanf` seguía produciendo bucle infinito en pruebas canalizadas — **resuelto en Sesión 18** con el patrón EOF/0/1 (aún relacionado con el repaso pendiente de Fase 5 para entradas no numéricas en campos).
 
