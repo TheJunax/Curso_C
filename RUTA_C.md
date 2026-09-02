@@ -1466,6 +1466,21 @@ const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 22 — Repaso conceptual: layout de structs en binario
+
+- **Tema:** repaso visual del layout de structs en archivos binarios usando el `sample_data.bin` del Taller 1.
+- **Preguntas del estudiante y respuestas:**
+  1. **"¿En qué línea paso los datos de cada struct?"** → `fread(lista, sizeof(Estudiante), cantidadEstudiantes, archivo)` en `leerLista()` — una sola línea que volca todo el bloque contiguo al array. No hay parsing campo por campo; `fread` mapea bytes crudos directamente al layout de la struct.
+  2. **"¿Qué pasa si organizo la struct en otro orden?"** → `fread` no sabe qué es "nombre" ni "id"; solo mete bytes en orden secuencial. Si el orden de los campos no coincide con el del archivo, cada campo recibe los bytes del campo equivocado → datos corruptos. Además el **padding de alineación** puede cambiar el `sizeof` y desfasar todo.
+- **Conceptos reforzados:** el `fread` masivo depende de que `sizeof(struct) == tamaño real del registro` y de que el **orden de los campos** sea idéntico al del archivo. Para reorganizar datos para uso interno, se lee con una struct "espejo" y se copia a otra struct con el orden deseado.
+- **Visualización:** hexdump de `sample_data.bin` con `xxd` mostrando header (14 B) y primeros 2 estudiantes (32 B cada uno) con sus campos mapeados byte por byte.
+- **Archivos consultados:** `Taller 1/Juan_Pineda_tarea1.c`, `Taller 1/sample_data.bin`.
+- No se escribió código nuevo ni se compiló.
+
+Estado: 🟢 Fase 7 en progreso. Parcial Gym en Etapa 1 (sin verificar). Próxima sesión: retomar Gym (compilar + completar funciones pendientes).
+
+---
+
 ## Sesión 21 — Taller 1: Tarea 2 COMPLETADA (promedio de edad por curso)
 
 - **Contexto:** se retomó `Taller 1/Juan_Pineda_tarea2.c` (Tarea 2 — promedio de edad). La Tarea 1 ya estaba ✅.
@@ -1912,13 +1927,13 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado.
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado. Sesión 22: repaso conceptual de layout de structs en binario (sin código nuevo).
 
 **Proyecto activo:** 🎓 Taller 1 COMPLETO (`Taller 1/`: `Juan_Pineda_tarea1.c` ✅ + `Juan_Pineda_tarea2.c` ✅ + `Juan_Pineda_tarea3.c` ✅) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c, Etapa 1 sin verificar)
 
 **Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite` (binarios ya cubiertos por `fread` en el Taller). Opcional: retomar Parcial Gym (Etapa 1 sin verificar) o optimizar Tarea 2 (hoy O(600M), ~30s, con el truco del índice quedaría O(1) por estudiante).
 
-**Último concepto dominado:** contar estudiantes **DISTINTOS** usando el `id` como índice de un array marcador (`idContado[1001]`, reiniciado por semestre) + desglose por sexo/posgrado con bitwise (`flags & 128`, `flags & 64`). Aplicado en Tarea 3 (tabla de 40 filas × 6 columnas, verificada con Python). Antes: bucles anidados para relacionar 3 listas en Tarea 2. Sub-concepto nuevo: descubrir límites de datos dinámicamente (`minAño`/`maxAño` y `minSem`/`maxSem` desde las matrículas) en vez de valores fijos, + verificación de invariantes de datos antes de confiar en el código (IDs 1..1000 contiguos/únicos sin huecos; pares año/sem regulares).
+**Último concepto dominado:** (Sesión 22) el `fread` masivo mapea bytes crudos al layout de la struct — depende de que `sizeof(struct)` = tamaño real del registro y que el **orden de campos** sea idéntico al del archivo; reorganizar la struct o el padding desfasan los datos. Para reordenar se usa struct "espejo" de lectura + copia a otra struct de uso interno. Antes: contar estudiantes DISTINTOS con el `id` como índice de array marcador + desglose por sexo/posgrado con bitwise.
 
 **Último ejercicio:** Taller 1 completo — Tarea 3 (`Juan_Pineda_tarea3.c`): tabla por año/semestre (descubiertos vía min/max desde las matrículas) de estudiantes distintos por 4 categorías. Verificado fila por fila con script Python independiente (2020-1, 2025-3, 2020-4, 2029-4, 2023-2) y con verificadores aparte (40 pares regulares, 1000 IDs únicos 1..1000, 0 matrículas inválidas). Tarea 2 modificada a "promedio de TODOS los cursos" (50 líneas, formato `Curso: <nombre> || Promedio De Edad: X.X`), validada. Ambos valgrind 0 fugas/0 errores y compilación limpia `-Wall -Wextra`.
 
