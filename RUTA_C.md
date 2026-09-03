@@ -1466,6 +1466,30 @@ const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 24 — Repaso de lógica: ejercicios rápidos tipo parcial (Parte A + Parte B iniciada)
+
+- **Tema:** batería de ejercicios rápidos de lógica de código con pinta de parcial (qué imprime / encontrar el bug / escribir código), repasando las trampas clásicas documentadas en 🐛.
+- **Parte A — "qué imprime" (Ejercicios 1–8), resultados:**
+  1. `*p = 10` → imprime `10` ✅ (puntero modifica la casilla).
+  2. `7/2` y `7%2` → `3` y `1` ✅ (división entera y módulo).
+  3. `for(i<=4)` sobre `int arr[4]` → el `printf` está FUERA del bucle (no imprime "1 2 3 4 0"), acumula en `total` y accede a `arr[4]` (basura) — **off-by-one**, salida indefinida (10 + basura). El estudiante detectó el bug pero describió mal la salida (creyó que imprimía elemento por elemento).
+  4. `float 4.5 → int` → `4` ✅ (truncado silencioso, sin redondear; `-Wall -Wextra` no avisa).
+  5. `modificar(&num)` con `*n=99` → `99` ✅ (paso por referencia).
+  6. `p = arr + 2` → `*p` = `30` ✅ (aritmética de punteros salta `2×sizeof(int)`).
+  7. `char s[5] = "HolaMundo"` → **ni siquiera compila** (11 bytes incl. `\0` en un array de 5); si se forzara sería desbordamiento de buffer. El estudiante dio causa correcta (array muy corto), se afinó enfatizando el `\0` y que es error de compilación.
+  8. `while(i<3){i++;}` → `3` ✅ (contador).
+- **Parte B — "encontrar el bug" (Ejercicios 9–12), resultados:**
+  9. `intercambiar(float a, float b)` sin punteros → imprime `3.5 7.2` (paso por valor, copia). ✅ el estudiante lo cazó; se reforzó la frase de parcial ("las funciones reciben copia; para modificar el original, pasar `&` y parámetro puntero").
+  10. `crearArray` retorna `arr[n]` (VLA local) → **dangling pointer por retorno de dirección a variable local**. Matiz clave: el puntero SÍ tiene la dirección; lo que muere es el bloque del stack al salir. Corrección: `malloc` (heap) o array pasado por parámetro.
+  11. `saludo()` retorna `msg[20]` local → **mismo dangling pointer**, no basta decir "devuelve un puntero". Corrección: `malloc`/`static`/parámetro de salida.
+  12. `agregar(int *arr, int *n, ...)` → 3 bugs: (1) `realloc` directo sin temporal (si falla pierde el original), (2) **falta puntero doble** — `realloc` puede mover memoria y el puntero del `main` queda colgando (mismo bug del `float **` del V5), (3) el puntero del main nunca se actualiza. Corrección: `int **arr` + temporal + `(*arr)[*n] = valor`.
+- **Parte C — "escribir código" (Ejercicios 13–15: palíndromo, índice del máximo, conteo de vocales): PENDIENTE** — el estudiante la dejó para la próxima sesión.
+- **Estado de sesión:** repaso de lógica, sin modificar código de proyectos. Parte A y B corregidas; se dejó la Parte C (escribir código) como tarea pendiente para retomar.
+
+Estado: 🟢 Fase 7 sigue en progreso. Repaso de lógica tipo parcial en curso (Parte C pendiente: escribir palíndromo / índice del máximo / conteo de vocales). Se refuerzan dangling pointer por retorno de local (10, 11) y puntero doble en realloc (12) — temas que se pueden marcar 🔁 si conviene repasar una vez más en la próxima sesión.
+
+---
+
 ## Sesión 23 — Repaso conceptual con CoderByte3 + revisión de "Profit" (acciones)
 
 - **Tema:** sesión de repaso de conceptos clave (structs, punteros simples/dobles, memoria dinámica, CRUD) guiada por `CoderByte3.c`/`RetoCoderByte.c`, más revisión de un reto nuevo de acciones (Profit).
@@ -1952,13 +1976,13 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado. Sesión 23: repaso conceptual con CoderByte + revisión de Profit; Sesión 22: repaso de layout de structs en binario.
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado. Sesiones 23–24: repaso de conceptos (CoderByte) y de lógica tipo parcial (qué imprime / encontrar el bug / escribir código). Sesión 22: layout de structs en binario.
 
 **Proyecto activo:** 🎓 Taller 1 COMPLETO (`Taller 1/`) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c — VERIFICADO en Sesión 23: compila limpio + valgrind 0 fugas/0 errores; Etapa 1 funcional; pendientes `buscarMiembro`/`eliminarMiembro`/`Estadisticas` declaradas sin implementar)
 
-**Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite`. Opcional: cerrar el Parcial Gym (implementar las 3 funciones faltantes) o optimizar Tarea 2 del Taller.
+**Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite`. Opcional: terminar la Parte C del repaso de lógica (escribir palíndromo / índice del máximo / conteo de vocales), cerrar el Parcial Gym (implementar las 3 funciones faltantes) o optimizar Tarea 2 del Taller.
 
-**Último concepto dominado:** (Sesión 23) repaso integral: punteros simples vs doble (cambiar el puntero vs cambiar su contenido), `realloc` con temporal para proteger el original, `strcpy` vs `=` en strings, desplazamiento al eliminar (`j=i`, límite `cantidad-1`, decremento afuera del bucle), anti-dangling (`free` + `NULL` + reset). Revisión de Profit: bugs de inicialización con `prices[1]` fuera de rango si `n<2`, y confusión de tipos (precios como días en `buy`/`sell`).
+**Último concepto dominado:** (Sesión 24) repaso de lógica tipo parcial: división entera/módulo, truncado `float→int`, paso por valor vs referencia, pendiente del `\0` en strings, off-by-one, y los tres bugs de `realloc` en una función (temporal + puntero doble + actualizar el puntero del caller). Se reforzó **dangling pointer por retorno de dirección a variable local** (Ej. 10 y 11) y **puntero doble en `realloc`** (Ej. 12) — candidatos a 🔁.
 
 **Último ejercicio:** Taller 1 completo — Tarea 3 (`Juan_Pineda_tarea3.c`): tabla por año/semestre (descubiertos vía min/max desde las matrículas) de estudiantes distintos por 4 categorías. Verificado fila por fila con script Python independiente (2020-1, 2025-3, 2020-4, 2029-4, 2023-2) y con verificadores aparte (40 pares regulares, 1000 IDs únicos 1..1000, 0 matrículas inválidas). Tarea 2 modificada a "promedio de TODOS los cursos" (50 líneas, formato `Curso: <nombre> || Promedio De Edad: X.X`), validada. Ambos valgrind 0 fugas/0 errores y compilación limpia `-Wall -Wextra`.
 
