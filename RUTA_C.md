@@ -1466,6 +1466,31 @@ const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 23 — Repaso conceptual con CoderByte3 + revisión de "Profit" (acciones)
+
+- **Tema:** sesión de repaso de conceptos clave (structs, punteros simples/dobles, memoria dinámica, CRUD) guiada por `CoderByte3.c`/`RetoCoderByte.c`, más revisión de un reto nuevo de acciones (Profit).
+- **Repaso CoderByte (preguntas socráticas):**
+  1. **Punteros simples vs dobles:** si la función necesita cambiar el PUNTERO en sí (crear/mover/destruir → `inicializar`, `agregar` con realloc, `liberar`) va `Producto **`; si solo lee o modifica campos del array ya apuntado (`imprimir`, `buscar`, `actualizarCantidad`, `calcularValorTotal`) va `Producto *`. Aclarada la duda de por qué `actualizarCantidad` usa simple (cambia contenido, no el puntero).
+  2. **`realloc` + temporal:** si `realloc` falla devuelve `NULL`; escribir directo `*inventario = realloc(...)` pierde el puntero original (leak + no poder `free`). El temporal protege el original hasta confirmar éxito.
+  3. **`strcpy` vs `=`:** en C no se asignan arrays con `=` (error de compilación); `strcpy` copia byte a byte incluyendo `\0`.
+  4. **Desplazamiento al eliminar:** empieza en `j=i` (pisar el borrado con el siguiente, no en `i-1`), condición `j < cantidad-1` (evita leer fuera de rango `[posición cantidad]`), `(*cantidad)--` FUERA del `for(j)` (si se decrementa en cada vuelta se destruye el contador).
+  5. **Anti-dangling:** `free` + `*inventario=NULL` + reseteo de `cantidad`/`capacidad`; `free(NULL)` es seguro → evita doble free (comportamiento indefinido, ya demostrado en Sesión 16).
+  6. **Sintaxis de acceso:** `(*(*inventario+j)).id` ≡ `(*inventario)[j].id` — el estudiante reconoce la forma array notation como más limpia.
+- **Revisión de "Profit"** (`Pruebas W3/W3Practicas/Medium/Profit.c`, best time to buy and sell stock):
+  - Compila limpio `-Wall -Wextra`; caso `[7,1,5,3,6]` → Profit 5, Buy 2, Sell 5 ✅.
+  - **Bugs encontrados (repaso de límites/tipos):**
+    1. `int profit = prices[1] - prices[0]` se ejecuta siempre → fuera de rango si `n < 2` (lee basura, no crashea por el array grande).
+    2. **Bug gordo de tipos/semántica:** `buy`/`sell` se inicializan con PRECIOS (`prices[0]`/`prices[1]`) pero en el `for` se guardan como DÍAS (`j+1`/`i+1`). Caso `[10,20,5]` (el mejor profit es el inicial, el `for` no encuentra uno mayor) → imprime `Buy day: 10 || Sell day: 20` (precios como días).
+    3. Doble `for` O(n²) → lento para arrays grandes (100000² ≈ 10⁹).
+    4. `scanf("%d", &n)` sin validar retorno → éxito fantasma (el clásico ya conocido).
+  - Confirmado con ejecución real: `[10,20,5]` → `Profit: 10 || Buy day: 10 || Sell day: 20` (salida incorrecta en días).
+- **También:** se verificó el Parcial Gym (`Pruebas Varias/PracticaArchivos/`) por primera vez: compila limpio, ejecuta (Messi Hernandez, Plan Basico, 80000, 1 mes), **valgrind 0 fugas / 0 errores** (2 allocs, 2 frees). Pendiente detectado: `eliminarMiembro`, `buscarMiembro`, `Estadisticas` están declarados en `gym.h` pero NO implementados en `gym.c` (promesas sin cumplir; compila porque nadie las llama). Typo heredado: `mostarMiembros` (falta la "r").
+- **Estado de sesión:** solo repaso/revisión; no se modificó código ni se avanzó en la ruta oficial.
+
+Estado: 🟢 Fase 7 sigue en progreso (queda proyecto inventario persistente + `fwrite`; binarios cubiertos por `fread` del Taller). Parcial Gym ahora VERIFICADO (compila + valgrind limpio, Etapa 1 funcional) pero con 3 funciones declaradas sin implementar. Profit revisado con bugs documentados. Próxima sesión a definir: cerrar Gym, atacar inventario persistente, o seguir repasando.
+
+---
+
 ## Sesión 22 — Repaso conceptual: layout de structs en binario
 
 - **Tema:** repaso visual del layout de structs en archivos binarios usando el `sample_data.bin` del Taller 1.
@@ -1927,13 +1952,13 @@ Al terminar esta ruta, el objetivo es que puedas:
 
 # 📌 ESTADO ACTUAL
 
-**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado. Sesión 22: repaso conceptual de layout de structs en binario (sin código nuevo).
+**Etapa:** 🟢 Fase 7 — Archivos y persistencia (en progreso). Taller universitario "Archivos binarios" (`Taller 1/`): Tareas 1, 2 y 3 ✅ COMPLETAS y validadas. Taller cerrado. Sesión 23: repaso conceptual con CoderByte + revisión de Profit; Sesión 22: repaso de layout de structs en binario.
 
-**Proyecto activo:** 🎓 Taller 1 COMPLETO (`Taller 1/`: `Juan_Pineda_tarea1.c` ✅ + `Juan_Pineda_tarea2.c` ✅ + `Juan_Pineda_tarea3.c` ✅) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c, Etapa 1 sin verificar)
+**Proyecto activo:** 🎓 Taller 1 COMPLETO (`Taller 1/`) + Parcial Gym (`Pruebas Varias/PracticaArchivos/`: gym.h + gym.c + main.c — VERIFICADO en Sesión 23: compila limpio + valgrind 0 fugas/0 errores; Etapa 1 funcional; pendientes `buscarMiembro`/`eliminarMiembro`/`Estadisticas` declaradas sin implementar)
 
-**Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite` (binarios ya cubiertos por `fread` en el Taller). Opcional: retomar Parcial Gym (Etapa 1 sin verificar) o optimizar Tarea 2 (hoy O(600M), ~30s, con el truco del índice quedaría O(1) por estudiante).
+**Próximo:** ⏳ Fase 7 del curso — queda el proyecto "Sistema de inventario persistente" y `fwrite`. Opcional: cerrar el Parcial Gym (implementar las 3 funciones faltantes) o optimizar Tarea 2 del Taller.
 
-**Último concepto dominado:** (Sesión 22) el `fread` masivo mapea bytes crudos al layout de la struct — depende de que `sizeof(struct)` = tamaño real del registro y que el **orden de campos** sea idéntico al del archivo; reorganizar la struct o el padding desfasan los datos. Para reordenar se usa struct "espejo" de lectura + copia a otra struct de uso interno. Antes: contar estudiantes DISTINTOS con el `id` como índice de array marcador + desglose por sexo/posgrado con bitwise.
+**Último concepto dominado:** (Sesión 23) repaso integral: punteros simples vs doble (cambiar el puntero vs cambiar su contenido), `realloc` con temporal para proteger el original, `strcpy` vs `=` en strings, desplazamiento al eliminar (`j=i`, límite `cantidad-1`, decremento afuera del bucle), anti-dangling (`free` + `NULL` + reset). Revisión de Profit: bugs de inicialización con `prices[1]` fuera de rango si `n<2`, y confusión de tipos (precios como días en `buy`/`sell`).
 
 **Último ejercicio:** Taller 1 completo — Tarea 3 (`Juan_Pineda_tarea3.c`): tabla por año/semestre (descubiertos vía min/max desde las matrículas) de estudiantes distintos por 4 categorías. Verificado fila por fila con script Python independiente (2020-1, 2025-3, 2020-4, 2029-4, 2023-2) y con verificadores aparte (40 pares regulares, 1000 IDs únicos 1..1000, 0 matrículas inválidas). Tarea 2 modificada a "promedio de TODOS los cursos" (50 líneas, formato `Curso: <nombre> || Promedio De Edad: X.X`), validada. Ambos valgrind 0 fugas/0 errores y compilación limpia `-Wall -Wextra`.
 
