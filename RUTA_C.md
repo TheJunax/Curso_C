@@ -1496,13 +1496,13 @@ if( (amistades[i][0] == persona_a && amistades[i][1] == persona_b) ||
 ## Sesión 25 — Punto 5 quiz de MatDis (grafos): relaciones, clique, BFS y grados en C
 
 - **Tema:** resolver el Punto 5 de un quiz de Matemáticas Discretas programado en C (`Punto 5.c`, en `/home/thejunax/Documentos/Etapa 2/`, fuera del repo): red social como grafo no dirigido, 8 funciones con TODO + 2 casos de prueba.
-- **Funciones completadas:** `son_amigos` y `obtener_amigos` (helpers), `es_reflexiva` (cada persona p tiene loop (p,p) vía `son_amigos`), `es_simetrica` (modelo no dirigido → simétrica por definición → `return 1` documentado), `encontrar_clique_de_tamano` (ternas i<j<k con los 3 pares amigos), `contar_amigos_mutuos` (intersección de listas de `obtener_amigos`), `puede_alcanzar` (BFS con cola + visitado), `todos_grados_pares` (grado vía `obtener_amigos`, `%2`).
+- **Funciones completadas:** `son_amigos` y `obtener_amigos` (helpers), `es_reflexiva` (cada persona p tiene loop (p,p) vía `son_amigos`), `es_simetrica` (**detección real**: cada (a,b) exige su inversa (b,a) explícita en el input; loops (a,a) son auto-simétricos — decisión final del estudiante), `encontrar_clique_de_tamano` (ternas i<j<k con los 3 pares amigos), `contar_amigos_mutuos` (intersección de listas de `obtener_amigos`), `puede_alcanzar` (BFS con cola + visitado), `todos_grados_pares` (grado vía `obtener_amigos`, `%2`).
 - **Errores del estudiante corregidos:**
   1. `son_amigos` con doble `for` que indexaba columnas fuera de rango (matriz `[m][2]`) → off-by-one de doble dimensión.
   2. `son_amigos` "compactado" con `||` sueltos → **loop fantasma**: `son_amigos(a,a)` = 1 con solo aparecer `a` en una arista (nuevo 🐛).
   3. `es_reflexiva` iteraba AMISTADES preguntando "¿esta amistad es amistad?" (siempre 1) en vez de PERSONAS con `son_amigos(p,p)`.
   4. `es_simetrica` comparaba `son_amigos(a,b)` con `son_amigos(b,a)` → tautología (siempre iguales) → `for` humo que no decide nada.
-- **Verificación:** `gcc -Wall -Wextra` con 0 warnings; los 2 casos de prueba del quiz pasan 100% (Reflexiva No, Simétrica Sí, clique Sí/No, amigos mutuos 1, alcanzabilidad Sí/No, grados pares Sí/No).
+- **Verificación:** `gcc -Wall -Wextra` con 0 warnings. Con la detección real de simetría, los casos del enunciado (sin pares inversos) dan `Simétrica: No`; se validó con inputs propios: con inversos explícitos → `Sí`, con asimetría (falta `(2,0)`) → `No`. El resto de resultados del quiz pasan (Reflexiva No, clique, amigos mutuos 1, alcanzabilidad, grados pares).
 - **Estado:** sesión de práctica externa (quiz de discretas); NO modifica el estado de las fases de la ruta (sigue Fase 7 en progreso).
 
 Estado: 🟢 Fase 7 sigue en progreso. Sesión de práctica con grafos/relaciones en C completada.
