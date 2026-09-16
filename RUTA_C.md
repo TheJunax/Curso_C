@@ -1422,6 +1422,33 @@ typedef struct {
 const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 ```
 
+### El "loop fantasma": verificar partes sueltas en vez del par completo (Punto 5 quiz grafos)
+
+Error:
+
+```c
+if(amistades[i][0] == persona_a || amistades[i][1] == persona_a){   // "a está en la arista"
+    if(amistades[i][1] == persona_b || amistades[i][0] == persona_b){ // "b está en la arista"
+        return 1;
+    }
+}
+```
+
+Aprendizaje:
+
+- Este código no pregunta "¿la arista es (a,b) o (b,a)?", pregunta "¿a y b están en la misma arista?" — no es lo mismo.
+- Resultado: `son_amigos(1,1)` (¿1 es amigo de sí mismo?) retorna 1 con solo que la persona 1 aparezca en CUALQUIER arista — un loop fantasma que no existe en el input → corrompe `es_reflexiva` (casi todo daba "Sí").
+- Regla general: un par `(a,b)` es UNA condición atómica; no se desarma en "a en algún lado" y "b en algún lado" con `||`, porque se pierde el vínculo entre los dos extremos.
+
+Solución:
+
+```c
+if( (amistades[i][0] == persona_a && amistades[i][1] == persona_b) ||
+    (amistades[i][0] == persona_b && amistades[i][1] == persona_a) ){
+    return 1;
+}
+```
+
 ---
 
 # 📝 CHECKPOINTS REALIZADOS
@@ -1465,6 +1492,20 @@ const char *genero = (lista[i].flags & 128) ? "Femenino" : "Masculino";
 ---
 
 # 📈 REGISTRO DE SESIONES
+
+## Sesión 25 — Punto 5 quiz de MatDis (grafos): relaciones, clique, BFS y grados en C
+
+- **Tema:** resolver el Punto 5 de un quiz de Matemáticas Discretas programado en C (`Punto 5.c`, en `/home/thejunax/Documentos/Etapa 2/`, fuera del repo): red social como grafo no dirigido, 8 funciones con TODO + 2 casos de prueba.
+- **Funciones completadas:** `son_amigos` y `obtener_amigos` (helpers), `es_reflexiva` (cada persona p tiene loop (p,p) vía `son_amigos`), `es_simetrica` (modelo no dirigido → simétrica por definición → `return 1` documentado), `encontrar_clique_de_tamano` (ternas i<j<k con los 3 pares amigos), `contar_amigos_mutuos` (intersección de listas de `obtener_amigos`), `puede_alcanzar` (BFS con cola + visitado), `todos_grados_pares` (grado vía `obtener_amigos`, `%2`).
+- **Errores del estudiante corregidos:**
+  1. `son_amigos` con doble `for` que indexaba columnas fuera de rango (matriz `[m][2]`) → off-by-one de doble dimensión.
+  2. `son_amigos` "compactado" con `||` sueltos → **loop fantasma**: `son_amigos(a,a)` = 1 con solo aparecer `a` en una arista (nuevo 🐛).
+  3. `es_reflexiva` iteraba AMISTADES preguntando "¿esta amistad es amistad?" (siempre 1) en vez de PERSONAS con `son_amigos(p,p)`.
+  4. `es_simetrica` comparaba `son_amigos(a,b)` con `son_amigos(b,a)` → tautología (siempre iguales) → `for` humo que no decide nada.
+- **Verificación:** `gcc -Wall -Wextra` con 0 warnings; los 2 casos de prueba del quiz pasan 100% (Reflexiva No, Simétrica Sí, clique Sí/No, amigos mutuos 1, alcanzabilidad Sí/No, grados pares Sí/No).
+- **Estado:** sesión de práctica externa (quiz de discretas); NO modifica el estado de las fases de la ruta (sigue Fase 7 en progreso).
+
+Estado: 🟢 Fase 7 sigue en progreso. Sesión de práctica con grafos/relaciones en C completada.
 
 ## Sesión 24 — Repaso de lógica: ejercicios rápidos tipo parcial (Parte A + Parte B iniciada)
 
