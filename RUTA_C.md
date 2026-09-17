@@ -1493,6 +1493,16 @@ if( (amistades[i][0] == persona_a && amistades[i][1] == persona_b) ||
 
 # 📈 REGISTRO DE SESIONES
 
+## Sesión 26 — Explicación de `puede_alcanzar` (BFS) en Red_Social.c
+
+- Le pedí al tutor que me explicara la función `puede_alcanzar` de mi archivo `Red_Social.c` (Etapa 2).
+- Aprendí que es un **BFS** (búsqueda en amplitud): explora el grafo por olas con una cola FIFO manual (`frente`/`atras`), marca visitados con `visitado[]` para no caer en ciclos, y en cuanto encuentra el destino retorna 1. Si la cola se agota sin verlo, retorna 0.
+- Entendí para qué sirve `visitado` con un grafo de prueba que tiene un ciclo (0-1-2-0): sin esa marca el algoritmo daría vueltas infinitas.
+- Hicimos el paso a paso en papel con 2 casos: `puede_alcanzar(0,4)` → **Sí** (camino 0→2→3→4, el más corto por ser BFS) y `puede_alcanzar(5,0)` → **No** (persona aislada sin amigos).
+- Lo verifiqué corriendo el programa de verdad con pipes: compila limpio con `gcc -Wall -Wextra` y la salida coincidió con lo del papel (Sí y No). También vi el ciclo triangular (0,1,2) que confirmaba el riesgo de bucle.
+
+Estado: 🟢 Fase 7 sigue en progreso. Sesión de repaso/explicación de BFS, sin cambios en la ruta oficial.
+
 ## Sesión 25 — Punto 5 quiz de MatDis (grafos): relaciones, clique, BFS y grados en C
 
 - **Tema:** resolver el Punto 5 de un quiz de Matemáticas Discretas programado en C. El archivo fue renombrado por el estudiante de `Punto 5.c` a **`Red_Social.c`** (en `/home/thejunax/Documentos/Etapa 2/`, fuera del repo): red social como grafo no dirigido, 8 funciones con TODO + 2 casos de prueba.
